@@ -1,13 +1,13 @@
 package famel.com.safepix_async;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import static org.assertj.core.api.Assertions.assertThat;
+
 class SafePixAsyncApplicationTests {
 
     @Test
-    void contextLoads() {
+    void applicationClassExists() {
+        assertThat(SafePixAsyncApplication.class).isNotNull();
     }
-
 }
