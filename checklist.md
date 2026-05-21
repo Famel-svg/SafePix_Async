@@ -29,13 +29,13 @@ Demonstrar o desacoplamento de serviços. Em vez da API travar esperando o proce
 - [x] application.yml Configurar host, porta, usuário e senha do RabbitMQ.
 
 ### Passo 2 Modelo de Dados (Domínio)
-- [ ] Criar PixDTO (Java Record) Definir os campos (id, chavePix, valor, timestamp). Usar Records para imutabilidade.
-- [ ] Configurar o MessageConverter Criar um Bean do `Jackson2JsonMessageConverter` para que o Spring envie objetos como JSON em vez de serialização Java nativa (essencial para interoperabilidade).
+- [x] Criar PixDTO (Java Record) Definir os campos (id, chavePix, valor, timestamp). Usar Records para imutabilidade.
+- [x] Configurar o MessageConverter Criar um Bean do `Jackson2JsonMessageConverter` para que o Spring envie objetos como JSON em vez de serialização Java nativa (essencial para interoperabilidade).
 
 ### Passo 3 Configuração da Arquitetura de Mensagens
-- [ ] Declarar a Fila Principal Criar o Bean da fila `pix.recebido.v1`.
-- [ ] Declarar a DLQ (Dead Letter Queue) Criar a fila `pix.recebido.v1.dlq` (para onde vão as mensagens que falharem).
-- [ ] Configurar a Dead Letter Strategy Vincular a fila principal à DLQ através das propriedades de argumentos da fila (`x-dead-letter-exchange`).
+- [x] Declarar a Fila Principal Criar o Bean da fila `pix.recebido.v1`.
+- [x] Declarar a DLQ (Dead Letter Queue) Criar a fila `pix.recebido.v1.dlq` (para onde vão as mensagens que falharem).
+- [X] Configurar a Dead Letter Strategy Vincular a fila principal à DLQ através das propriedades de argumentos da fila (`x-dead-letter-exchange`).
 
 ### Passo 4 O Produtor (ProducerAPI)
 - [ ] Criar o PixController Endpoint POST para receber o Pix.
