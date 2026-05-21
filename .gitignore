@@ -31,3 +31,32 @@ build/
 
 ### VS Code ###
 .vscode/
+/.agents/skills/caveman-compress/scripts/__init__.py
+/.opencode/AGENTS.md
+/.agents/skills/caveman-compress/scripts/__main__.py
+/AGENTS.md
+/.agents/skills/caveman-compress/scripts/benchmark.py
+/.clinerules/caveman.md
+/.windsurf/rules/caveman.md
+/.cursor/rules/caveman.mdc
+/.agents/skills/caveman-compress/scripts/cli.py
+/.agents/skills/caveman-compress/scripts/compress.py
+/.github/copilot-instructions.md
+/.agents/skills/caveman-compress/scripts/detect.py
+/.agents/skills/cavecrew/README.md
+/.agents/skills/caveman/README.md
+/.agents/skills/caveman-commit/README.md
+/.agents/skills/caveman-compress/README.md
+/.agents/skills/caveman-help/README.md
+/.agents/skills/caveman-review/README.md
+/.agents/skills/caveman-stats/README.md
+/.agents/skills/caveman-compress/SECURITY.md
+/.agents/skills/cavecrew/SKILL.md
+/.agents/skills/caveman/SKILL.md
+/.agents/skills/caveman-commit/SKILL.md
+/.agents/skills/caveman-compress/SKILL.md
+/.agents/skills/caveman-help/SKILL.md
+/.agents/skills/caveman-review/SKILL.md
+/.agents/skills/caveman-stats/SKILL.md
+/skills-lock.json
+/.agents/skills/caveman-compress/scripts/validate.py
