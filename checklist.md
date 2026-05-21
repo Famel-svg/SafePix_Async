@@ -38,9 +38,9 @@ Demonstrar o desacoplamento de serviços. Em vez da API travar esperando o proce
 - [X] Configurar a Dead Letter Strategy Vincular a fila principal à DLQ através das propriedades de argumentos da fila (`x-dead-letter-exchange`).
 
 ### Passo 4 O Produtor (ProducerAPI)
-- [ ] Criar o PixController Endpoint POST para receber o Pix.
-- [ ] Criar o PixService Lógica para enviar a mensagem usando `RabbitTemplate`.
-- [ ] Validação Garantir que o valor do Pix seja positivo e a chave não seja nula (Bean Validation).
+- [x] Criar o PixController Endpoint POST para receber o Pix.
+- [x] Criar o PixService Lógica para enviar a mensagem usando `RabbitTemplate`.
+- [x] Validação Garantir que o valor do Pix seja positivo e a chave não seja nula (Bean Validation).
 
 ### Passo 5 O Consumidor (ConsumerWorker)
 - [ ] Criar o PixConsumer Classe anotada com `@Component`.
