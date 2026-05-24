@@ -1,0 +1,137 @@
+
+### ✅ Documentação Profissional
+- [x] **README.md** completo com:
+  - [x] Badge de build: `![Build](https://github.com/user/repo/actions/workflows/ci.yml/badge.svg)`
+  - [x] Badge de cobertura: `![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)`
+  - [x] Diagrama de arquitetura (Mermaid ou imagem)
+  - [x] Instruções de execução com `docker-compose up`
+  - [x] Exemplos de requisições cURL e respostas esperadas
+  - [x] Link para Swagger UI e painel do RabbitMQ
+- [x] **CHANGELOG.md** seguindo [Keep a Changelog](https://keepachangelog.com/)
+- [x] **CONTRIBUTING.md** com guidelines para PRs e padrões de código
+
+### ✅ Versionamento e Qualidade
+- [ ] Adotar **Versionamento Semântico** (`MAJOR.MINOR.PATCH`) no `pom.xml`
+- [ ] Configurar **Maven Enforcer Plugin** para validar regras de versão e dependências
+- [ ] Integrar **Spotless** ou **Checkstyle** para formatação automática de código
+- [ ] Criar `.gitignore` robusto para Java/Maven/Docker
+
+---
+
+## 🧪 Fase 2: Robustez, Testabilidade e Tratamento de Erros
+
+> *Objetivo: Garantir que o sistema seja testável, resiliente e previsível em cenários de falha.*
+
+### ✅ Produtor (Producer) - Camada de API
+- [ ] **PixController**:
+  - [ ] Endpoint `POST /api/v1/pix` com `@Valid` e tratamento de `MethodArgumentNotValidException`
+  - [ ] Retorno `202 Accepted` com `Location` header apontando para recurso de status
+  - [ ] Inclusão de `correlationId` no header de resposta para rastreabilidade
+- [ ] **PixService**:
+  - [x] Injeção de `RabbitTemplate` via construtor (imutabilidade)
+  - [ ] Uso de `convertAndSend()` com `MessagePostProcessor` para injetar headers de correlação
+  - [ ] Logging estruturado com MDC: `log.info("PIX enviado", kv("pixId", id), kv("correlationId", corrId))`
+
+### ✅ Consumidor (Consumer) - Worker Assíncrono
+- [ ] **PixConsumer**:
+  - [ ] Anotação `@RabbitListener` com `concurrency` configurável via properties
+  - [ ] Implementação de **idempotência**: verificar `pixId` em cache/DB antes de processar
+  - [ ] Simulação de lógica de negócio com `Thread.sleep` configurável (para testes de carga)
+- [ ] **Tratamento de Erros Avançado**:
+  - [ ] Uso de `@RabbitListener` com `errorHandler` customizado (`ConditionalRejectingErrorHandler`)
+  - [ ] Implementar `RepublishMessageRecoverer` para enviar metadados de erro à DLQ
+  - [ ] Configurar `RetryTemplate` com backoff exponencial via `spring-rabbit`
+
+### ✅ Estratégia de Filas e DLQ
+- [x] **Fila Principal** `pix.recebido.v1`:
+  - [ ] Arguments: `x-dead-letter-exchange: ""`, `x-dead-letter-routing-key: pix.recebido.v1.dlq`
+  - [ ] `x-message-ttl`: 3600000 (1 hora) para evitar acúmulo infinito
+- [x] **DLQ** `pix.recebido.v1.dlq`:
+  - [ ] Configurar como fila de quarentena com `x-dead-letter-exchange` apontando para exchange de reprocessamento (opcional)
+  - [ ] Criar endpoint administrativo para listar/reprocessar mensagens da DLQ (feature avançada)
+
+### ✅ Testes Automatizados - O Diferencial
+- [x] **Testes Unitários** (JUnit 5 + Mockito):
+  - [ ] Cobertura mínima de 80% nas camadas de serviço e domínio
+  - [ ] Testar cenários: valor negativo, chave nula, idempotência, falha de conversão
+- [x] **Testes de Integração com Testcontainers**:
+  - [x] Configurar `@Testcontainers` com container RabbitMQ isolado por teste
+  - [x] Validar fluxo completo: POST → RabbitMQ → Consumer → DLQ (se aplicável)
+  - [ ] Usar `Awaitility` para aguardar condições assíncronas sem `Thread.sleep`
+- [ ] **Testes de Contrato (Opcional Avançado)**:
+  - [ ] Usar Spring Cloud Contract para validar schema das mensagens entre producer/consumer
+- [ ] **Relatórios de Qualidade**:
+  - [ ] Configurar JaCoCo para gerar relatório HTML de cobertura
+  - [ ] Integrar com GitHub Actions para publicar cobertura como artefato
+
+### ✅ Gestão de Concorrência e Threads
+- [ ] **Executor Customizado**:
+  - [ ] Criar `@Bean` de `ThreadPoolTaskExecutor` para tarefas longas do consumer
+  - [ ] Configurar `corePoolSize`, `maxPoolSize`, `queueCapacity` via properties
+- [ ] **Propagação de Contexto**:
+  - [ ] Implementar wrapper `Runnable` que copia MDC do thread pai para o filho
+  - [ ] Garantir que `correlationId` e dados de segurança sejam propagados em cadeias assíncronas
+
+---
+
+## 🔍 Fase 3: Observabilidade, Resiliência e Arquitetura
+
+> *Objetivo: Tornar o sistema monitorável, resiliente e preparado para produção.*
+
+### ✅ Logging Estruturado e Correlação
+- [ ] **Configuração Logback**:
+  - [ ] Padrão de log JSON com campos: `timestamp`, `level`, `logger`, `message`, `correlationId`, `pixId`
+  - [ ] Filtros para mascarar dados sensíveis (ex: chaves PIX)
+- [ ] **MDC (Mapped Diagnostic Context)**:
+  - [ ] Interceptor Spring MVC para injetar `correlationId` do header ou gerar novo UUID
+  - [ ] Garantir limpeza do MDC em `finally` para evitar vazamento entre requisições
+- [ ] **Logs de Auditoria**:
+  - [ ] Logar eventos críticos: recebimento, processamento, sucesso, falha, envio para DLQ
+
+### ✅ Métricas e Health Checks
+- [x] **Spring Actuator**:
+  - [ ] Habilitar endpoints: `health`, `metrics`, `prometheus` (se usar monitoring stack)
+  - [ ] Custom HealthIndicator para verificar conexão com RabbitMQ e fila principal
+- [ ] **Micrometer + Prometheus (Opcional)**:
+  - [ ] Instrumentar métricas de negócio: `pix.processed.total`, `pix.failed.total`, `pix.processing.duration`
+  - [ ] Dashboard Grafana simples (incluir screenshot no README)
+
+### ✅ Resiliência com Circuit Breaker e Retry
+- [ ] **Resilience4j Integration**:
+  - [ ] Adicionar dependência `resilience4j-spring-boot3`
+  - [ ] Configurar CircuitBreaker para chamadas externas (ex: consulta de saldo, antifraude)
+  - [ ] Definir políticas: `failureRateThreshold=50%`, `waitDurationInOpenState=30s`
+- [ ] **Retry com Backoff**:
+  - [ ] Configurar via `@Retryable` ou programaticamente com `RetryTemplate`
+  - [ ] Diferenciar retry para erros transitórios (rede) vs. erros de negócio (validação)
+
+### ✅ OpenTelemetry (Observabilidade Avançada)
+- [ ] **Instrumentação Automática**:
+  - [ ] Adicionar `opentelemetry-javaagent` via Dockerfile ou Maven plugin
+  - [ ] Configurar exporter para Jaeger/Zipkin (local) ou OTLP (produção)
+- [ ] **Spans Customizados**:
+  - [ ] Criar span para "processamento PIX" com attributes: `pix.value`, `pix.key_type`
+  - [ ] Propagar context entre produtor e consumer via headers do RabbitMQ
+
+---
+
+## 🚀 Fase 4: Automação, Entrega e Produção
+
+> *Objetivo: Demonstrar domínio do ciclo completo de desenvolvimento e entrega de software.*
+
+### ✅ Docker e Containerização
+- [x] **Dockerfile Multi-stage**:
+  ```dockerfile
+  # Stage 1: Build
+  FROM maven:3.9-eclipse-temurin-21 AS build
+  WORKDIR /app
+  COPY . .
+  RUN mvn -B package -DskipTests
+
+  # Stage 2: Runtime
+  FROM eclipse-temurin:21-jre-alpine
+  WORKDIR /app
+  COPY --from=build /app/target/*.jar app.jar
+  RUN addgroup -S app && adduser -S app -G app
+  USER app:app
+  ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-jar", "app.jar"]
