@@ -1,4 +1,19 @@
 services:
+  app:
+    build:
+      context: .
+    container_name: safepix-app
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: safepix
+      SPRING_RABBITMQ_PASSWORD: safepix
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: safepix-rabbitmq
@@ -10,6 +25,11 @@ services:
       RABBITMQ_DEFAULT_PASS: safepix
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   rabbitmq-data:

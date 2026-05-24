@@ -61,9 +61,9 @@ Demonstrar o desacoplamento de serviços. Em vez da API travar esperando o proce
 - [x] Logs Implementar logs claros usando SLF4J (Logback) em cada etapa do fluxo.
 
 ### Passo 8 Deploy e Finalização
-- [ ] Dockerfile Criar uma imagem multi-stage para otimizar o tamanho do jar final.
-- [ ] Docker Compose Final Adicionar a aplicação Java ao `docker-compose.yml` para subir o sistema completo (App + RabbitMQ) com um único comando.
-- [ ] README.md Escrever como rodar o projeto, como acessar o painel do RabbitMQ e como testar o fluxo de sucesso e erro.
+- [x] Dockerfile Criar uma imagem multi-stage para otimizar o tamanho do jar final.
+- [x] Docker Compose Final Adicionar a aplicação Java ao `docker-compose.yml` para subir o sistema completo (App + RabbitMQ) com um único comando.
+- [x] README.md Escrever como rodar o projeto, como acessar o painel do RabbitMQ e como testar o fluxo de sucesso e erro.
 
 ---
 ## 💡 Dicas para o Nível Intermediário
