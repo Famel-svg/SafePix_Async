@@ -6,3 +6,16 @@ spring:
     port: 5672
     username: safepix
     password: safepix
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

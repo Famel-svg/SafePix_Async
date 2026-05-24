@@ -43,22 +43,22 @@ Demonstrar o desacoplamento de serviços. Em vez da API travar esperando o proce
 - [x] Validação Garantir que o valor do Pix seja positivo e a chave não seja nula (Bean Validation).
 
 ### Passo 5 O Consumidor (ConsumerWorker)
-- [ ] Criar o PixConsumer Classe anotada com `@Component`.
-- [ ] Implementar o `@RabbitListener` Método que escuta a fila principal.
-- [ ] Simular Lógica de Negócio Logar o recebimento e simular um tempo de processamento (`Thread.sleep`).
-- [ ] Simular Falha Adicionar uma lógica que lança uma `AmqpRejectAndDontRequeueException` se o valor for inválido, para testar o envio para a DLQ.
+- [x] Criar o PixConsumer Classe anotada com `@Component`.
+- [x] Implementar o `@RabbitListener` Método que escuta a fila principal.
+- [x] Simular Lógica de Negócio Logar o recebimento e simular um tempo de processamento (`Thread.sleep`).
+- [x] Simular Falha Adicionar uma lógica que lança uma `AmqpRejectAndDontRequeueException` se o valor for inválido, para testar o envio para a DLQ.
 
 ### Passo 6 Testes Automatizados (O diferencial)
-- [ ] Testes Unitários Testar as validações do DTO e lógica do Service com Mockito.
-- [ ] Testes de Integração com Testcontainers 
+- [x] Testes Unitários Testar as validações do DTO e lógica do Service com Mockito.
+- [x] Testes de Integração com Testcontainers 
     - Configurar um container do RabbitMQ subindo apenas para o teste.
     - Validar se, ao enviar um POST na API, a mensagem realmente chega ao listener.
-- [ ] Teste de DLQ Forçar um erro no consumidor e validar se a mensagem caiu na fila de erro.
+- [x] Teste de DLQ Forçar um erro no consumidor e validar se a mensagem caiu na fila de erro.
 
 ### Passo 7 Observabilidade e Documentação
-- [ ] Swagger UI Configurar o SpringDoc para testar o POST pela interface visual.
-- [ ] Spring Actuator Adicionar `health` para monitorar se a conexão com o RabbitMQ está de pé.
-- [ ] Logs Implementar logs claros usando SLF4J (Logback) em cada etapa do fluxo.
+- [x] Swagger UI Configurar o SpringDoc para testar o POST pela interface visual.
+- [x] Spring Actuator Adicionar `health` para monitorar se a conexão com o RabbitMQ está de pé.
+- [x] Logs Implementar logs claros usando SLF4J (Logback) em cada etapa do fluxo.
 
 ### Passo 8 Deploy e Finalização
 - [ ] Dockerfile Criar uma imagem multi-stage para otimizar o tamanho do jar final.
