@@ -33,14 +33,14 @@
   - [ ] Logging estruturado com MDC: `log.info("PIX enviado", kv("pixId", id), kv("correlationId", corrId))`
 
 ### ✅ Consumidor (Consumer) - Worker Assíncrono
-- [ ] **PixConsumer**:
-  - [ ] Anotação `@RabbitListener` com `concurrency` configurável via properties
-  - [ ] Implementação de **idempotência**: verificar `pixId` em cache/DB antes de processar
-  - [ ] Simulação de lógica de negócio com `Thread.sleep` configurável (para testes de carga)
-- [ ] **Tratamento de Erros Avançado**:
-  - [ ] Uso de `@RabbitListener` com `errorHandler` customizado (`ConditionalRejectingErrorHandler`)
-  - [ ] Implementar `RepublishMessageRecoverer` para enviar metadados de erro à DLQ
-  - [ ] Configurar `RetryTemplate` com backoff exponencial via `spring-rabbit`
+- [x] **PixConsumer**:
+  - [x] Anotação `@RabbitListener` com `concurrency` configurável via properties
+  - [x] Implementação de **idempotência**: verificar `pixId` em cache/DB antes de processar
+  - [x] Simulação de lógica de negócio com `Thread.sleep` configurável (para testes de carga)
+- [x] **Tratamento de Erros Avançado**:
+  - [x] Uso de `@RabbitListener` com `errorHandler` customizado (`ConditionalRejectingErrorHandler`)
+  - [x] Implementar `RepublishMessageRecoverer` para enviar metadados de erro à DLQ
+  - [x] Configurar `RetryTemplate` com backoff exponencial via `spring-rabbit`
 
 ### ✅ Estratégia de Filas e DLQ
 - [x] **Fila Principal** `pix.recebido.v1`:

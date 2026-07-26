@@ -43,6 +43,11 @@ class PixIntegrationTest {
         registry.add("spring.rabbitmq.port", RABBITMQ::getAmqpPort);
         registry.add("spring.rabbitmq.username", () -> "guest");
         registry.add("spring.rabbitmq.password", () -> "guest");
+        registry.add("safepix.consumer.processing-delay-ms", () -> "0");
+        registry.add("safepix.consumer.concurrency", () -> "1");
+        registry.add("safepix.rabbitmq.listener.retry.max-attempts", () -> "1");
+        registry.add("safepix.rabbitmq.listener.retry.initial-interval-ms", () -> "10");
+        registry.add("safepix.rabbitmq.listener.retry.max-interval-ms", () -> "10");
     }
 
     @LocalServerPort
@@ -121,6 +126,29 @@ class PixIntegrationTest {
         assertThat(pixNaDlq.id()).isEqualTo(pixInvalido.id());
     }
 
+    @Test
+    void deveEnviarMensagemInvalidaParaDlqSemLoopDeRequeue() {
+        PixEvent pixInvalido = new PixEvent(
+                UUID.randomUUID(),
+                "cliente@email.com",
+                BigDecimal.ZERO,
+                Instant.now(),
+                null,
+                "corr-dlq-loop",
+                "default",
+                0,
+                RabbitMqConfig.PAYLOAD_VERSION
+        );
+
+        rabbitTemplate.convertAndSend(RabbitMqConfig.PIX_QUEUE, pixInvalido);
+
+        PixEvent pixNaDlq = receberPixDaDlq();
+
+        assertThat(pixNaDlq).isNotNull();
+        assertThat(pixNaDlq.id()).isEqualTo(pixInvalido.id());
+        assertThat(receberPixDaFilaPrincipal()).isNull();
+    }
+
     private PixEvent receberPixDaDlq() {
         long deadline = System.currentTimeMillis() + 10_000;
         while (System.currentTimeMillis() < deadline) {
@@ -128,6 +156,14 @@ class PixIntegrationTest {
             if (message instanceof PixEvent pixEvent) {
                 return pixEvent;
             }
+        }
+        return null;
+    }
+
+    private PixEvent receberPixDaFilaPrincipal() {
+        Object message = rabbitTemplate.receiveAndConvert(RabbitMqConfig.PIX_QUEUE, 500);
+        if (message instanceof PixEvent pixEvent) {
+            return pixEvent;
         }
         return null;
     }

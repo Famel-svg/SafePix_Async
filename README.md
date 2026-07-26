@@ -133,6 +133,8 @@ pix.recebido.v1.dlq
 
 Fila principal usa TTL padrao de 1 hora (`3600000` ms) e envia falhas para a DLQ via default exchange. A DLQ atua como quarentena e aponta para a exchange `pix.recebido.v1.reprocess`, usada para reprocessamento controlado.
 
+O consumer usa concorrencia configuravel, delay de processamento configuravel, retry com backoff e recoverer para DLQ. Pix duplicado pelo mesmo `id` e ignorado por uma store em memoria.
+
 Esse comportamento e validado pelos testes de integracao com Testcontainers.
 
 ## Testes
@@ -159,4 +161,10 @@ Os testes de integracao sobem RabbitMQ real via Testcontainers. Docker Desktop p
 | `SPRING_RABBITMQ_PORT` | `5672` | Porta RabbitMQ |
 | `SPRING_RABBITMQ_USERNAME` | `safepix` | Usuario RabbitMQ |
 | `SPRING_RABBITMQ_PASSWORD` | `safepix` | Senha RabbitMQ |
+| `SAFEPIX_CONSUMER_CONCURRENCY` | `1` | Concorrencia do listener RabbitMQ |
+| `SAFEPIX_CONSUMER_PROCESSING_DELAY_MS` | `2000` | Delay simulado do processamento do consumer |
 | `SAFEPIX_RABBITMQ_MESSAGE_TTL_MS` | `3600000` | TTL da fila principal em milissegundos |
+| `SAFEPIX_RABBITMQ_RETRY_MAX_ATTEMPTS` | `3` | Tentativas do listener antes de enviar para DLQ |
+| `SAFEPIX_RABBITMQ_RETRY_INITIAL_INTERVAL_MS` | `500` | Backoff inicial do retry |
+| `SAFEPIX_RABBITMQ_RETRY_MULTIPLIER` | `2.0` | Multiplicador do backoff |
+| `SAFEPIX_RABBITMQ_RETRY_MAX_INTERVAL_MS` | `5000` | Backoff maximo do retry |

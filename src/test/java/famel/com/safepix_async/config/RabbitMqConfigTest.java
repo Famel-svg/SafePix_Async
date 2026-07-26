@@ -8,8 +8,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class RabbitMqConfigTest {
 
@@ -57,5 +60,18 @@ class RabbitMqConfigTest {
         assertThat(json)
                 .contains("\"valor\":10.10")
                 .contains("\"payloadVersion\":\"1\"");
+    }
+
+    @Test
+    void deveCriarContainerFactoryComRetryERecovererParaDlq() {
+        assertThat(config.pixRabbitListenerContainerFactory(
+                mock(ConnectionFactory.class),
+                config.messageConverter(),
+                mock(RabbitTemplate.class),
+                1,
+                10,
+                1.0,
+                10))
+                .isNotNull();
     }
 }

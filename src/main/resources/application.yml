@@ -23,8 +23,17 @@ springdoc:
     path: /swagger-ui.html
 
 safepix:
+  consumer:
+    concurrency: ${SAFEPIX_CONSUMER_CONCURRENCY:1}
+    processing-delay-ms: ${SAFEPIX_CONSUMER_PROCESSING_DELAY_MS:2000}
   rabbitmq:
     message-ttl-ms: ${SAFEPIX_RABBITMQ_MESSAGE_TTL_MS:3600000}
+    listener:
+      retry:
+        max-attempts: ${SAFEPIX_RABBITMQ_RETRY_MAX_ATTEMPTS:3}
+        initial-interval-ms: ${SAFEPIX_RABBITMQ_RETRY_INITIAL_INTERVAL_MS:500}
+        multiplier: ${SAFEPIX_RABBITMQ_RETRY_MULTIPLIER:2.0}
+        max-interval-ms: ${SAFEPIX_RABBITMQ_RETRY_MAX_INTERVAL_MS:5000}
 
 logging:
   level:
