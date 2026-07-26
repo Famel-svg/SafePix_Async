@@ -26,6 +26,10 @@ safepix:
   consumer:
     concurrency: ${SAFEPIX_CONSUMER_CONCURRENCY:1}
     processing-delay-ms: ${SAFEPIX_CONSUMER_PROCESSING_DELAY_MS:2000}
+    executor:
+      core-pool-size: ${SAFEPIX_CONSUMER_EXECUTOR_CORE_POOL_SIZE:2}
+      max-pool-size: ${SAFEPIX_CONSUMER_EXECUTOR_MAX_POOL_SIZE:4}
+      queue-capacity: ${SAFEPIX_CONSUMER_EXECUTOR_QUEUE_CAPACITY:100}
   rabbitmq:
     message-ttl-ms: ${SAFEPIX_RABBITMQ_MESSAGE_TTL_MS:3600000}
     listener:

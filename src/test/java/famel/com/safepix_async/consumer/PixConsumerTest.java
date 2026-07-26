@@ -5,7 +5,6 @@ import famel.com.safepix_async.domain.dto.PixEvent;
 import famel.com.safepix_async.observability.PixMetrics;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 import java.math.BigDecimal;
@@ -37,7 +36,8 @@ class PixConsumerTest {
         PixEvent event = pixEvent(BigDecimal.ZERO);
 
         assertThatThrownBy(() -> consumer.processarPix(event))
-                .isInstanceOf(AmqpRejectAndDontRequeueException.class);
+                .isInstanceOf(PixBusinessValidationException.class)
+                .hasMessageContaining("valor invalido");
 
         assertThat(store.isProcessed(event.id())).isFalse();
         assertThat(store.tryStart(event.id())).isTrue();

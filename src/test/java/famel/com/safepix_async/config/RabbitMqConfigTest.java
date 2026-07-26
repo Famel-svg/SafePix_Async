@@ -1,15 +1,18 @@
 package famel.com.safepix_async.config;
 
 import famel.com.safepix_async.domain.dto.PixEvent;
+import famel.com.safepix_async.consumer.PixBusinessValidationException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -68,10 +71,42 @@ class RabbitMqConfigTest {
                 mock(ConnectionFactory.class),
                 config.messageConverter(),
                 mock(RabbitTemplate.class),
+                config.pixConsumerTaskExecutor(1, 1, 1),
                 1,
                 10,
                 1.0,
                 10))
                 .isNotNull();
+    }
+
+    @Test
+    void deveDiferenciarRetryEntreErroTransitorioENegocio() {
+        var retryPolicy = config.pixRetryPolicy(3, 10, 2.0, 100);
+
+        assertThat(retryPolicy.shouldRetry(new IllegalStateException("rede fora"))).isTrue();
+        assertThat(retryPolicy.shouldRetry(new PixBusinessValidationException("valor invalido"))).isFalse();
+    }
+
+    @Test
+    void deveCriarExecutorCustomizadoParaConsumer() {
+        ThreadPoolTaskExecutor executor = config.pixConsumerTaskExecutor(2, 4, 50);
+
+        assertThat(executor.getCorePoolSize()).isEqualTo(2);
+        assertThat(executor.getMaxPoolSize()).isEqualTo(4);
+        assertThat(executor.getQueueCapacity()).isEqualTo(50);
+        assertThat(executor.getThreadNamePrefix()).isEqualTo("pix-consumer-");
+    }
+
+    @Test
+    void devePropagarMdcERestaurarContextoAnterior() {
+        MDC.put("correlationId", "parent-corr");
+        Runnable decorated = new MdcTaskDecorator().decorate(() ->
+                assertThat(MDC.get("correlationId")).isEqualTo("parent-corr"));
+
+        MDC.put("correlationId", "worker-old");
+        decorated.run();
+
+        assertThat(MDC.get("correlationId")).isEqualTo("worker-old");
+        MDC.clear();
     }
 }

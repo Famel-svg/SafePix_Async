@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -53,7 +52,7 @@ public class PixConsumer {
             LOGGER.info("PIX processamento iniciado: id={}", pixEvent.id());
 
             if (pixEvent.valor() == null || pixEvent.valor().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new AmqpRejectAndDontRequeueException("Pix com valor invalido: " + pixEvent.valor());
+                throw new PixBusinessValidationException("Pix com valor invalido: " + pixEvent.valor());
             }
 
             Thread.sleep(processingDelayMs);
@@ -66,7 +65,7 @@ public class PixConsumer {
             pixMetrics.recordFailed(durationSince(startNanos));
             LOGGER.error("PIX falhou e sera enviado para DLQ: id={}, erro={}: {}",
                     pixEvent.id(), exception.getClass().getSimpleName(), exception.getMessage());
-            throw new AmqpRejectAndDontRequeueException("Processamento do Pix interrompido", exception);
+            throw new IllegalStateException("Processamento do Pix interrompido", exception);
         } catch (RuntimeException exception) {
             processedPixStore.release(pixEvent.id());
             pixMetrics.recordFailed(durationSince(startNanos));

@@ -137,8 +137,20 @@ pix.recebido.v1.dlq
 Fila principal usa TTL padrao de 1 hora (`3600000` ms) e envia falhas para a DLQ via default exchange. A DLQ atua como quarentena e aponta para a exchange `pix.recebido.v1.reprocess`, usada para reprocessamento controlado.
 
 O consumer usa concorrencia configuravel, delay de processamento configuravel, retry com backoff e recoverer para DLQ. Pix duplicado pelo mesmo `id` e ignorado por uma store em memoria.
+Erros transitorios usam retry com backoff antes de ir para DLQ; erros de negocio, como valor invalido, nao sao retentados.
+Threads do consumer usam executor dedicado com MDC propagado para preservar `correlationId` no processamento assincrono.
 
 Esse comportamento e validado pelos testes de integracao com Testcontainers.
+
+### Administracao da DLQ
+
+```bash
+curl http://localhost:8080/api/v1/admin/dlq/pix?limit=10
+
+curl -X POST http://localhost:8080/api/v1/admin/dlq/pix/reprocess?limit=10
+```
+
+O `GET` lista ate `limit` mensagens da DLQ e as devolve para a mesma fila. O `POST` move ate `limit` mensagens para a exchange de reprocessamento `pix.recebido.v1.reprocess`, roteando de volta para `pix.recebido.v1`.
 
 ## Observabilidade
 
@@ -173,6 +185,8 @@ Spring Cloud Contract ainda nao foi adicionado porque o projeto usa Spring Boot 
 | Metodo | Rota | Descricao |
 | --- | --- | --- |
 | POST | `/api/v1/pix` | Recebe solicitacao Pix e publica mensagem |
+| GET | `/api/v1/admin/dlq/pix` | Lista mensagens da DLQ e devolve para quarentena |
+| POST | `/api/v1/admin/dlq/pix/reprocess` | Reprocessa mensagens da DLQ |
 | GET | `/actuator/health` | Verifica saude da aplicacao |
 | GET | `/actuator/metrics` | Lista metricas da aplicacao |
 | GET | `/actuator/prometheus` | Exporta metricas para Prometheus |
@@ -188,6 +202,9 @@ Spring Cloud Contract ainda nao foi adicionado porque o projeto usa Spring Boot 
 | `SPRING_RABBITMQ_PASSWORD` | `safepix` | Senha RabbitMQ |
 | `SAFEPIX_CONSUMER_CONCURRENCY` | `1` | Concorrencia do listener RabbitMQ |
 | `SAFEPIX_CONSUMER_PROCESSING_DELAY_MS` | `2000` | Delay simulado do processamento do consumer |
+| `SAFEPIX_CONSUMER_EXECUTOR_CORE_POOL_SIZE` | `2` | Tamanho base do pool dedicado ao consumer |
+| `SAFEPIX_CONSUMER_EXECUTOR_MAX_POOL_SIZE` | `4` | Tamanho maximo do pool dedicado ao consumer |
+| `SAFEPIX_CONSUMER_EXECUTOR_QUEUE_CAPACITY` | `100` | Capacidade da fila interna do executor do consumer |
 | `SAFEPIX_RABBITMQ_MESSAGE_TTL_MS` | `3600000` | TTL da fila principal em milissegundos |
 | `SAFEPIX_RABBITMQ_RETRY_MAX_ATTEMPTS` | `3` | Tentativas do listener antes de enviar para DLQ |
 | `SAFEPIX_RABBITMQ_RETRY_INITIAL_INTERVAL_MS` | `500` | Backoff inicial do retry |

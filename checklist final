@@ -48,7 +48,7 @@
   - [x] `x-message-ttl`: 3600000 (1 hora) para evitar acúmulo infinito
 - [x] **DLQ** `pix.recebido.v1.dlq`:
   - [x] Configurar como fila de quarentena com `x-dead-letter-exchange` apontando para exchange de reprocessamento (opcional)
-  - [ ] Criar endpoint administrativo para listar/reprocessar mensagens da DLQ (feature avançada)
+  - [x] Criar endpoint administrativo para listar/reprocessar mensagens da DLQ (feature avançada)
 
 ### ✅ Testes Automatizados - O Diferencial
 - [x] **Testes Unitários** (JUnit 5 + Mockito):
@@ -65,12 +65,12 @@
   - [x] Integrar com GitHub Actions para publicar cobertura como artefato
 
 ### ✅ Gestão de Concorrência e Threads
-- [ ] **Executor Customizado**:
-  - [ ] Criar `@Bean` de `ThreadPoolTaskExecutor` para tarefas longas do consumer
-  - [ ] Configurar `corePoolSize`, `maxPoolSize`, `queueCapacity` via properties
-- [ ] **Propagação de Contexto**:
-  - [ ] Implementar wrapper `Runnable` que copia MDC do thread pai para o filho
-  - [ ] Garantir que `correlationId` e dados de segurança sejam propagados em cadeias assíncronas
+- [x] **Executor Customizado**:
+  - [x] Criar `@Bean` de `ThreadPoolTaskExecutor` para tarefas longas do consumer
+  - [x] Configurar `corePoolSize`, `maxPoolSize`, `queueCapacity` via properties
+- [x] **Propagação de Contexto**:
+  - [x] Implementar wrapper `Runnable` que copia MDC do thread pai para o filho
+  - [x] Garantir que `correlationId` e dados de segurança sejam propagados em cadeias assíncronas
 
 ---
 
@@ -101,9 +101,9 @@
   - [ ] Adicionar dependência `resilience4j-spring-boot3`
   - [ ] Configurar CircuitBreaker para chamadas externas (ex: consulta de saldo, antifraude)
   - [ ] Definir políticas: `failureRateThreshold=50%`, `waitDurationInOpenState=30s`
-- [ ] **Retry com Backoff**:
-  - [ ] Configurar via `@Retryable` ou programaticamente com `RetryTemplate`
-  - [ ] Diferenciar retry para erros transitórios (rede) vs. erros de negócio (validação)
+- [x] **Retry com Backoff**:
+  - [x] Configurar via `@Retryable` ou programaticamente com `RetryTemplate`
+  - [x] Diferenciar retry para erros transitórios (rede) vs. erros de negócio (validação)
 
 ### ✅ OpenTelemetry (Observabilidade Avançada)
 - [ ] **Instrumentação Automática**:

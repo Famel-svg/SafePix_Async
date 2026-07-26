@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import famel.com.safepix_async.consumer.PixBusinessValidationException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
@@ -24,6 +27,8 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 public class RabbitMqConfig {
@@ -82,6 +87,7 @@ public class RabbitMqConfig {
             ConnectionFactory connectionFactory,
             MessageConverter messageConverter,
             RabbitTemplate rabbitTemplate,
+            ThreadPoolTaskExecutor pixConsumerTaskExecutor,
             @Value("${safepix.rabbitmq.listener.retry.max-attempts:3}") int maxAttempts,
             @Value("${safepix.rabbitmq.listener.retry.initial-interval-ms:500}") long initialIntervalMs,
             @Value("${safepix.rabbitmq.listener.retry.multiplier:2.0}") double multiplier,
@@ -91,12 +97,37 @@ public class RabbitMqConfig {
         factory.setMessageConverter(messageConverter);
         factory.setDefaultRequeueRejected(false);
         factory.setErrorHandler(new ConditionalRejectingErrorHandler());
+        factory.setTaskExecutor(pixConsumerTaskExecutor);
         factory.setAdviceChain(RetryInterceptorBuilder.stateless()
-                .maxRetries(Math.max(0, maxAttempts - 1))
-                .backOffOptions(initialIntervalMs, multiplier, maxIntervalMs)
+                .retryPolicy(pixRetryPolicy(maxAttempts, initialIntervalMs, multiplier, maxIntervalMs))
                 .recoverer(new RepublishMessageRecoverer(rabbitTemplate, "", PIX_DLQ))
                 .build());
         return factory;
+    }
+
+    @Bean
+    public ThreadPoolTaskExecutor pixConsumerTaskExecutor(
+            @Value("${safepix.consumer.executor.core-pool-size:2}") int corePoolSize,
+            @Value("${safepix.consumer.executor.max-pool-size:4}") int maxPoolSize,
+            @Value("${safepix.consumer.executor.queue-capacity:100}") int queueCapacity) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("pix-consumer-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
+        executor.initialize();
+        return executor;
+    }
+
+    RetryPolicy pixRetryPolicy(int maxAttempts, long initialIntervalMs, double multiplier, long maxIntervalMs) {
+        return RetryPolicy.builder()
+                .maxRetries(Math.max(0, maxAttempts - 1))
+                .delay(Duration.ofMillis(initialIntervalMs))
+                .multiplier(multiplier)
+                .maxDelay(Duration.ofMillis(maxIntervalMs))
+                .excludes(PixBusinessValidationException.class, AmqpRejectAndDontRequeueException.class)
+                .build();
     }
 
     private ObjectMapper rabbitObjectMapper() {
