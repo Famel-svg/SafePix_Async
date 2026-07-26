@@ -58,8 +58,8 @@
   - [x] Configurar `@Testcontainers` com container RabbitMQ isolado por teste
   - [x] Validar fluxo completo: POST → RabbitMQ → Consumer → DLQ (se aplicável)
   - [x] Usar `Awaitility` para aguardar condições assíncronas sem `Thread.sleep`
-- [ ] **Testes de Contrato (Opcional Avançado)**:
-  - [ ] Usar Spring Cloud Contract para validar schema das mensagens entre producer/consumer
+- [x] **Testes de Contrato (Opcional Avançado)**:
+  - [x] Usar Spring Cloud Contract para validar schema das mensagens entre producer/consumer
 - [x] **Relatórios de Qualidade**:
   - [x] Configurar JaCoCo para gerar relatório HTML de cobertura
   - [x] Integrar com GitHub Actions para publicar cobertura como artefato

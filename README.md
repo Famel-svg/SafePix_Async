@@ -189,7 +189,7 @@ Os testes de integracao sobem RabbitMQ real via Testcontainers. Docker Desktop p
 Use `.\mvnw.cmd verify` para gerar JaCoCo em `target/site/jacoco` e aplicar gate minimo de 80% nas camadas `service` e `domain`.
 
 O CI em GitHub Actions executa `mvn verify` e publica o relatorio HTML do JaCoCo como artefato `jacoco-html`.
-Spring Cloud Contract ainda nao foi adicionado porque o projeto usa Spring Boot 4 sem BOM Spring Cloud validado; existe um teste leve de contrato de mensagem cobrindo o schema JSON `PixEvent`.
+O schema JSON da mensagem `PixEvent` e validado por teste de contrato com Spring Cloud Contract Java DSL.
 
 ## Endpoints principais
 

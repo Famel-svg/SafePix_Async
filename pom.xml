@@ -37,6 +37,7 @@
         <awaitility.version>4.3.0</awaitility.version>
         <resilience4j.version>2.4.0</resilience4j.version>
         <opentelemetry.version>1.62.0</opentelemetry.version>
+        <spring-cloud-contract.version>5.0.2</spring-cloud-contract.version>
     </properties>
 
     <dependencyManagement>
@@ -140,6 +141,13 @@
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>${awaitility.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-contract-spec-java</artifactId>
+            <version>${spring-cloud-contract.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
