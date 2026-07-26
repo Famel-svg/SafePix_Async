@@ -80,3 +80,4 @@ docker-compose.override.yml
 /.agents/skills/caveman-compress/scripts/validate.py
 /checklist tecnico
 /checklist final
+/checklist.md
