@@ -23,11 +23,11 @@
 > *Objetivo: Garantir que o sistema seja testável, resiliente e previsível em cenários de falha.*
 
 ### ✅ Produtor (Producer) - Camada de API
-- [ ] **PixController**:
+- [x] **PixController**:
   - [x] Endpoint `POST /api/v1/pix` com `@Valid` e tratamento de `MethodArgumentNotValidException`
   - [x] Retorno `202 Accepted` com `Location` header apontando para recurso de status
   - [x] Inclusão de `correlationId` no header de resposta para rastreabilidade
-- [ ] **PixService**:
+- [x] **PixService**:
   - [x] Injeção de `RabbitTemplate` via construtor (imutabilidade)
   - [x] Uso de `convertAndSend()` com `MessagePostProcessor` para injetar headers de correlação
   - [x] Logging estruturado com MDC: `log.info("PIX enviado", kv("pixId", id), kv("correlationId", corrId))`
@@ -60,7 +60,7 @@
   - [x] Usar `Awaitility` para aguardar condições assíncronas sem `Thread.sleep`
 - [ ] **Testes de Contrato (Opcional Avançado)**:
   - [ ] Usar Spring Cloud Contract para validar schema das mensagens entre producer/consumer
-- [ ] **Relatórios de Qualidade**:
+- [x] **Relatórios de Qualidade**:
   - [x] Configurar JaCoCo para gerar relatório HTML de cobertura
   - [x] Integrar com GitHub Actions para publicar cobertura como artefato
 
