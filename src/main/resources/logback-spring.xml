@@ -1,0 +1,22 @@
+<configuration>
+    <springProperty scope="context" name="APP_LOG_LEVEL" source="logging.level.famel.com.safepix_async" defaultValue="INFO"/>
+    <springProperty scope="context" name="ROOT_LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.JsonEncoder">
+            <withTimestamp>true</withTimestamp>
+            <withLevel>true</withLevel>
+            <withLoggerName>true</withLoggerName>
+            <withMessage>true</withMessage>
+            <withFormattedMessage>true</withFormattedMessage>
+            <withMDC>true</withMDC>
+            <withThrowable>false</withThrowable>
+        </encoder>
+    </appender>
+
+    <logger name="famel.com.safepix_async" level="${APP_LOG_LEVEL}"/>
+
+    <root level="${ROOT_LOG_LEVEL}">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

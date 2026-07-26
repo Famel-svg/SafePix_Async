@@ -2,6 +2,8 @@ package famel.com.safepix_async.consumer;
 
 import famel.com.safepix_async.config.RabbitMqConfig;
 import famel.com.safepix_async.domain.dto.PixEvent;
+import famel.com.safepix_async.observability.PixMetrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -18,7 +20,7 @@ class PixConsumerTest {
     @Test
     void deveIgnorarPixDuplicadoSemProcessarDuasVezes() {
         ProcessedPixStore store = new ProcessedPixStore();
-        PixConsumer consumer = new PixConsumer(store, 0);
+        PixConsumer consumer = new PixConsumer(store, 0, pixMetrics());
         PixEvent event = pixEvent(BigDecimal.TEN);
 
         consumer.processarPix(event);
@@ -31,7 +33,7 @@ class PixConsumerTest {
     @Test
     void deveLiberarIdempotenciaQuandoValorForInvalido() {
         ProcessedPixStore store = new ProcessedPixStore();
-        PixConsumer consumer = new PixConsumer(store, 0);
+        PixConsumer consumer = new PixConsumer(store, 0, pixMetrics());
         PixEvent event = pixEvent(BigDecimal.ZERO);
 
         assertThatThrownBy(() -> consumer.processarPix(event))
@@ -63,5 +65,9 @@ class PixConsumerTest {
                 0,
                 RabbitMqConfig.PAYLOAD_VERSION
         );
+    }
+
+    private PixMetrics pixMetrics() {
+        return new PixMetrics(new SimpleMeterRegistry());
     }
 }

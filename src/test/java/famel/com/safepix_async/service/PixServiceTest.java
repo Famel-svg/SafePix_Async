@@ -4,6 +4,7 @@ import famel.com.safepix_async.config.RabbitMqConfig;
 import famel.com.safepix_async.domain.dto.PixEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.MDC;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -59,5 +60,29 @@ class PixServiceTest {
                 .containsEntry(RabbitMqConfig.HEADER_TENANT_ID, "default")
                 .containsEntry(RabbitMqConfig.HEADER_RETRY_COUNT, 0)
                 .containsEntry(RabbitMqConfig.HEADER_PAYLOAD_VERSION, RabbitMqConfig.PAYLOAD_VERSION);
+        assertThat(MDC.get("correlationId")).isNull();
+        assertThat(MDC.get("pixId")).isNull();
+    }
+
+    @Test
+    void deveRestaurarMdcAnteriorAposEnviarPix() {
+        PixEvent pixEvent = new PixEvent(
+                UUID.randomUUID(),
+                "cliente@email.com",
+                BigDecimal.TEN,
+                Instant.now(),
+                null,
+                "corr-service",
+                "default",
+                0,
+                RabbitMqConfig.PAYLOAD_VERSION
+        );
+        MDC.put("correlationId", "parent-corr");
+
+        pixService.enviarPix(pixEvent);
+
+        assertThat(MDC.get("correlationId")).isEqualTo("parent-corr");
+        assertThat(MDC.get("pixId")).isNull();
+        MDC.clear();
     }
 }

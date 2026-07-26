@@ -42,6 +42,8 @@ Servicos locais:
 - API: http://localhost:8080
 - Swagger UI: http://localhost:8080/swagger-ui.html
 - Health: http://localhost:8080/actuator/health
+- Metrics: http://localhost:8080/actuator/metrics
+- Prometheus: http://localhost:8080/actuator/prometheus
 - RabbitMQ Management: http://localhost:15672
 
 Credenciais RabbitMQ:
@@ -100,6 +102,7 @@ Efeito esperado:
 - Headers RabbitMQ: `x-correlation-id`, `x-tenant-id`, `x-retry-count`, `x-payload-version`
 - Consumer processa mensagem em segundo plano
 - Log registra recebimento, envio e processamento
+- Logs saem em JSON com `correlationId` e `pixId`
 
 ## Requisicao Pix invalida
 
@@ -137,6 +140,22 @@ O consumer usa concorrencia configuravel, delay de processamento configuravel, r
 
 Esse comportamento e validado pelos testes de integracao com Testcontainers.
 
+## Observabilidade
+
+Endpoints Actuator expostos:
+
+- `GET /actuator/health`: saude da aplicacao e health customizado da fila `pix.recebido.v1`
+- `GET /actuator/metrics`: catalogo de metricas
+- `GET /actuator/prometheus`: scrape Prometheus
+
+Metricas de negocio:
+
+- `pix.processed.total`
+- `pix.failed.total`
+- `pix.processing.duration`
+
+Logs usam formato JSON com `timestamp`, `level`, `loggerName`, `message`, `formattedMessage` e MDC contendo `correlationId` e `pixId`. O header HTTP `X-Correlation-Id` e reaproveitado quando enviado; se ausente, a aplicacao gera um UUID e devolve no response header.
+
 ## Testes
 
 ```powershell
@@ -151,6 +170,8 @@ Os testes de integracao sobem RabbitMQ real via Testcontainers. Docker Desktop p
 | --- | --- | --- |
 | POST | `/api/v1/pix` | Recebe solicitacao Pix e publica mensagem |
 | GET | `/actuator/health` | Verifica saude da aplicacao |
+| GET | `/actuator/metrics` | Lista metricas da aplicacao |
+| GET | `/actuator/prometheus` | Exporta metricas para Prometheus |
 | GET | `/swagger-ui.html` | Abre documentacao OpenAPI |
 
 ## Variaveis de ambiente

@@ -2,6 +2,7 @@ package famel.com.safepix_async.controller;
 
 import famel.com.safepix_async.domain.dto.PixEvent;
 import famel.com.safepix_async.domain.dto.PixRequest;
+import famel.com.safepix_async.observability.SensitiveDataMasker;
 import famel.com.safepix_async.service.PixService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -54,7 +55,7 @@ public class PixController {
         PixEvent pixEvent = pixRequest.toEvent(resolvedCorrelationId, tenantId);
 
         LOGGER.info("Recebida solicitacao de Pix: id={}, chavePix={}, valor={}",
-                pixEvent.id(), pixEvent.chavePix(), pixEvent.valor());
+                pixEvent.id(), SensitiveDataMasker.maskPixKey(pixEvent.chavePix()), pixEvent.valor());
         pixService.enviarPix(pixEvent);
         LOGGER.info("Solicitacao de Pix aceita para processamento: id={}, correlationId={}",
                 pixEvent.id(), pixEvent.correlationId());
