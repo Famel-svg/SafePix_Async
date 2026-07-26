@@ -92,9 +92,9 @@
 - [x] **Spring Actuator**:
   - [x] Habilitar endpoints: `health`, `metrics`, `prometheus` (se usar monitoring stack)
   - [x] Custom HealthIndicator para verificar conexão com RabbitMQ e fila principal
-- [ ] **Micrometer + Prometheus (Opcional)**:
+- [x] **Micrometer + Prometheus (Opcional)**:
   - [x] Instrumentar métricas de negócio: `pix.processed.total`, `pix.failed.total`, `pix.processing.duration`
-  - [ ] Dashboard Grafana simples (incluir screenshot no README)
+  - [x] Dashboard Grafana simples (incluir screenshot no README)
 
 ### ✅ Resiliência com Circuit Breaker e Retry
 - [x] **Resilience4j Integration**:
@@ -106,12 +106,12 @@
   - [x] Diferenciar retry para erros transitórios (rede) vs. erros de negócio (validação)
 
 ### ✅ OpenTelemetry (Observabilidade Avançada)
-- [ ] **Instrumentação Automática**:
-  - [ ] Adicionar `opentelemetry-javaagent` via Dockerfile ou Maven plugin
-  - [ ] Configurar exporter para Jaeger/Zipkin (local) ou OTLP (produção)
-- [ ] **Spans Customizados**:
-  - [ ] Criar span para "processamento PIX" com attributes: `pix.value`, `pix.key_type`
-  - [ ] Propagar context entre produtor e consumer via headers do RabbitMQ
+- [x] **Instrumentação Automática**:
+  - [x] Adicionar `opentelemetry-javaagent` via Dockerfile ou Maven plugin
+  - [x] Configurar exporter para Jaeger/Zipkin (local) ou OTLP (produção)
+- [x] **Spans Customizados**:
+  - [x] Criar span para "processamento PIX" com attributes: `pix.value`, `pix.key_type`
+  - [x] Propagar context entre produtor e consumer via headers do RabbitMQ
 
 ---
 

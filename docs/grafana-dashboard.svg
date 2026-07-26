@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-labelledby="title desc">
+  <title id="title">SafePix Grafana dashboard screenshot</title>
+  <desc id="desc">Preview of SafePix Grafana dashboard with processed, failed, and p95 latency panels.</desc>
+  <rect width="960" height="420" fill="#111827"/>
+  <rect x="28" y="24" width="904" height="56" rx="6" fill="#1f2937"/>
+  <text x="54" y="59" fill="#f9fafb" font-family="Arial, sans-serif" font-size="24">SafePix Async</text>
+  <text x="775" y="58" fill="#9ca3af" font-family="Arial, sans-serif" font-size="15">Last 15 minutes</text>
+  <rect x="28" y="104" width="286" height="244" rx="6" fill="#0f172a" stroke="#374151"/>
+  <rect x="337" y="104" width="286" height="244" rx="6" fill="#0f172a" stroke="#374151"/>
+  <rect x="646" y="104" width="286" height="244" rx="6" fill="#0f172a" stroke="#374151"/>
+  <text x="52" y="143" fill="#d1d5db" font-family="Arial, sans-serif" font-size="18">PIX processados</text>
+  <text x="361" y="143" fill="#d1d5db" font-family="Arial, sans-serif" font-size="18">PIX com falha</text>
+  <text x="670" y="143" fill="#d1d5db" font-family="Arial, sans-serif" font-size="18">Latencia p95</text>
+  <text x="52" y="236" fill="#22c55e" font-family="Arial, sans-serif" font-size="64" font-weight="700">128</text>
+  <text x="361" y="236" fill="#ef4444" font-family="Arial, sans-serif" font-size="64" font-weight="700">3</text>
+  <text x="670" y="236" fill="#38bdf8" font-family="Arial, sans-serif" font-size="64" font-weight="700">84ms</text>
+  <path d="M54 304 C98 260, 140 314, 182 284 S258 286, 288 252" fill="none" stroke="#22c55e" stroke-width="4"/>
+  <path d="M363 302 C412 300, 448 260, 486 292 S566 284, 598 304" fill="none" stroke="#ef4444" stroke-width="4"/>
+  <path d="M672 304 C718 246, 752 284, 802 250 S878 288, 908 238" fill="none" stroke="#38bdf8" stroke-width="4"/>
+  <rect x="28" y="368" width="904" height="28" rx="4" fill="#1f2937"/>
+  <text x="52" y="387" fill="#9ca3af" font-family="Arial, sans-serif" font-size="14">Prometheus: /actuator/prometheus | Jaeger: traces OTLP | RabbitMQ: pix.recebido.v1</text>
+</svg>

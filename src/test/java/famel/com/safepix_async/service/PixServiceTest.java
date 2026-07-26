@@ -2,6 +2,7 @@ package famel.com.safepix_async.service;
 
 import famel.com.safepix_async.config.RabbitMqConfig;
 import famel.com.safepix_async.domain.dto.PixEvent;
+import famel.com.safepix_async.observability.PixTracing;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.MDC;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +30,9 @@ class PixServiceTest {
 
     @Mock
     private RabbitTemplate rabbitTemplate;
+
+    @Mock
+    private PixTracing pixTracing;
 
     @InjectMocks
     private PixService pixService;
@@ -60,6 +65,7 @@ class PixServiceTest {
                 .containsEntry(RabbitMqConfig.HEADER_TENANT_ID, "default")
                 .containsEntry(RabbitMqConfig.HEADER_RETRY_COUNT, 0)
                 .containsEntry(RabbitMqConfig.HEADER_PAYLOAD_VERSION, RabbitMqConfig.PAYLOAD_VERSION);
+        verify(pixTracing).injectRabbitContext(any(MessageProperties.class));
         assertThat(MDC.get("correlationId")).isNull();
         assertThat(MDC.get("pixId")).isNull();
     }

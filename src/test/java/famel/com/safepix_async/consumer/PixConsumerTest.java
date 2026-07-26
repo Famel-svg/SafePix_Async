@@ -3,6 +3,7 @@ package famel.com.safepix_async.consumer;
 import famel.com.safepix_async.config.RabbitMqConfig;
 import famel.com.safepix_async.domain.dto.PixEvent;
 import famel.com.safepix_async.observability.PixMetrics;
+import famel.com.safepix_async.observability.PixTracing;
 import famel.com.safepix_async.service.PixAntifraudClient;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,11 +26,11 @@ class PixConsumerTest {
     void deveIgnorarPixDuplicadoSemProcessarDuasVezes() {
         ProcessedPixStore store = new ProcessedPixStore();
         PixAntifraudClient antifraudClient = approvingAntifraud();
-        PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), antifraudClient);
+        PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), antifraudClient, new PixTracing());
         PixEvent event = pixEvent(BigDecimal.TEN);
 
-        consumer.processarPix(event);
-        consumer.processarPix(event);
+        consumer.processarPix(event, Map.of());
+        consumer.processarPix(event, Map.of());
 
         verify(antifraudClient).approve(event);
         assertThat(store.isProcessed(event.id())).isTrue();
@@ -38,10 +40,10 @@ class PixConsumerTest {
     @Test
     void deveLiberarIdempotenciaQuandoValorForInvalido() {
         ProcessedPixStore store = new ProcessedPixStore();
-        PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), approvingAntifraud());
+        PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), approvingAntifraud(), new PixTracing());
         PixEvent event = pixEvent(BigDecimal.ZERO);
 
-        assertThatThrownBy(() -> consumer.processarPix(event))
+        assertThatThrownBy(() -> consumer.processarPix(event, Map.of()))
                 .isInstanceOf(PixBusinessValidationException.class)
                 .hasMessageContaining("valor invalido");
 
@@ -53,11 +55,11 @@ class PixConsumerTest {
     void deveNegarPixQuandoAntifraudeReprovar() {
         ProcessedPixStore store = new ProcessedPixStore();
         PixAntifraudClient antifraudClient = mock(PixAntifraudClient.class);
-        PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), antifraudClient);
+        PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), antifraudClient, new PixTracing());
         PixEvent event = pixEvent(BigDecimal.TEN);
         when(antifraudClient.approve(event)).thenReturn(false);
 
-        assertThatThrownBy(() -> consumer.processarPix(event))
+        assertThatThrownBy(() -> consumer.processarPix(event, Map.of()))
                 .isInstanceOf(PixBusinessValidationException.class)
                 .hasMessageContaining("negado pelo antifraude");
 
@@ -67,7 +69,7 @@ class PixConsumerTest {
 
     @Test
     void deveConfigurarRabbitListenerComConcorrenciaEFactoryCustomizada() throws NoSuchMethodException {
-        RabbitListener listener = PixConsumer.class.getMethod("processarPix", PixEvent.class)
+        RabbitListener listener = PixConsumer.class.getMethod("processarPix", PixEvent.class, Map.class)
                 .getAnnotation(RabbitListener.class);
 
         assertThat(listener.queues()).containsExactly(RabbitMqConfig.PIX_QUEUE);

@@ -29,6 +29,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.verify;
@@ -106,7 +107,7 @@ class PixIntegrationTest {
                         pixId.equals(pixEvent.id())
                                 && "corr-test".equals(pixEvent.correlationId())
                                 && "default".equals(pixEvent.tenantId())
-                                && RabbitMqConfig.PAYLOAD_VERSION.equals(pixEvent.payloadVersion()))));
+                                && RabbitMqConfig.PAYLOAD_VERSION.equals(pixEvent.payloadVersion())), anyMap()));
     }
 
     @Test

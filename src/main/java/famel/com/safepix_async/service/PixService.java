@@ -2,6 +2,7 @@ package famel.com.safepix_async.service;
 
 import famel.com.safepix_async.config.RabbitMqConfig;
 import famel.com.safepix_async.domain.dto.PixEvent;
+import famel.com.safepix_async.observability.PixTracing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -16,9 +17,11 @@ public class PixService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PixService.class);
 
     private final RabbitTemplate rabbitTemplate;
+    private final PixTracing pixTracing;
 
-    public PixService(RabbitTemplate rabbitTemplate) {
+    public PixService(RabbitTemplate rabbitTemplate, PixTracing pixTracing) {
         this.rabbitTemplate = rabbitTemplate;
+        this.pixTracing = pixTracing;
     }
 
     public void enviarPix(PixEvent pixEvent) {
@@ -44,6 +47,7 @@ public class PixService {
             message.getMessageProperties().setHeader(RabbitMqConfig.HEADER_TENANT_ID, pixEvent.tenantId());
             message.getMessageProperties().setHeader(RabbitMqConfig.HEADER_RETRY_COUNT, pixEvent.retryCount());
             message.getMessageProperties().setHeader(RabbitMqConfig.HEADER_PAYLOAD_VERSION, pixEvent.payloadVersion());
+            pixTracing.injectRabbitContext(message.getMessageProperties());
             return message;
         };
     }

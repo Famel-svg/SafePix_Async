@@ -36,6 +36,7 @@
         <testcontainers.version>2.0.5</testcontainers.version>
         <awaitility.version>4.3.0</awaitility.version>
         <resilience4j.version>2.4.0</resilience4j.version>
+        <opentelemetry.version>1.62.0</opentelemetry.version>
     </properties>
 
     <dependencyManagement>
@@ -91,6 +92,18 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <version>${opentelemetry.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-context</artifactId>
+            <version>${opentelemetry.version}</version>
         </dependency>
 
         <dependency>

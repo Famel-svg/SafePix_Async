@@ -1,0 +1,82 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "panels": [
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "targets": [
+        {
+          "expr": "pix_processed_total",
+          "legendFormat": "processados"
+        }
+      ],
+      "title": "PIX processados",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "pix_failed_total",
+          "legendFormat": "falhas"
+        }
+      ],
+      "title": "PIX com falha",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(pix_processing_duration_seconds_bucket[5m]))",
+          "legendFormat": "p95"
+        }
+      ],
+      "title": "Latencia p95",
+      "type": "stat"
+    }
+  ],
+  "schemaVersion": 42,
+  "tags": [
+    "safepix",
+    "pix"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "title": "SafePix Async",
+  "uid": "safepix-async",
+  "version": 1
+}

@@ -159,6 +159,9 @@ Endpoints Actuator expostos:
 - `GET /actuator/health`: saude da aplicacao e health customizado da fila `pix.recebido.v1`
 - `GET /actuator/metrics`: catalogo de metricas
 - `GET /actuator/prometheus`: scrape Prometheus
+- Grafana: `http://localhost:3000` (`admin` / `admin`)
+- Prometheus: `http://localhost:9090`
+- Jaeger: `http://localhost:16686`
 
 Metricas de negocio:
 
@@ -167,6 +170,10 @@ Metricas de negocio:
 - `pix.processing.duration`
 
 Logs usam formato JSON com `timestamp`, `level`, `loggerName`, `message`, `formattedMessage` e MDC contendo `correlationId` e `pixId`. O header HTTP `X-Correlation-Id` e reaproveitado quando enviado; se ausente, a aplicacao gera um UUID e devolve no response header.
+
+![Grafana dashboard](docs/grafana-dashboard.svg)
+
+OpenTelemetry roda via `opentelemetry-javaagent` no Dockerfile, exportando traces OTLP para Jaeger. O producer injeta contexto W3C nos headers RabbitMQ, e o consumer cria o span customizado `processamento PIX` com attributes `pix.value` e `pix.key_type`.
 
 ## Resiliencia
 
