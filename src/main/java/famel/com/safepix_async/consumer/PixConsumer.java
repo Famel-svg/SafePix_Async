@@ -4,6 +4,7 @@ import famel.com.safepix_async.config.RabbitMqConfig;
 import famel.com.safepix_async.domain.dto.PixEvent;
 import famel.com.safepix_async.observability.PixMetrics;
 import famel.com.safepix_async.observability.SensitiveDataMasker;
+import famel.com.safepix_async.service.PixAntifraudClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +23,16 @@ public class PixConsumer {
     private final ProcessedPixStore processedPixStore;
     private final long processingDelayMs;
     private final PixMetrics pixMetrics;
+    private final PixAntifraudClient pixAntifraudClient;
 
     public PixConsumer(ProcessedPixStore processedPixStore,
             @Value("${safepix.consumer.processing-delay-ms:2000}") long processingDelayMs,
-            PixMetrics pixMetrics) {
+            PixMetrics pixMetrics,
+            PixAntifraudClient pixAntifraudClient) {
         this.processedPixStore = processedPixStore;
         this.processingDelayMs = processingDelayMs;
         this.pixMetrics = pixMetrics;
+        this.pixAntifraudClient = pixAntifraudClient;
     }
 
     @RabbitListener(
@@ -53,6 +57,10 @@ public class PixConsumer {
 
             if (pixEvent.valor() == null || pixEvent.valor().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new PixBusinessValidationException("Pix com valor invalido: " + pixEvent.valor());
+            }
+
+            if (!pixAntifraudClient.approve(pixEvent)) {
+                throw new PixBusinessValidationException("Pix negado pelo antifraude: " + pixEvent.id());
             }
 
             Thread.sleep(processingDelayMs);

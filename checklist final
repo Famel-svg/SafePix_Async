@@ -97,10 +97,10 @@
   - [ ] Dashboard Grafana simples (incluir screenshot no README)
 
 ### ✅ Resiliência com Circuit Breaker e Retry
-- [ ] **Resilience4j Integration**:
-  - [ ] Adicionar dependência `resilience4j-spring-boot3`
-  - [ ] Configurar CircuitBreaker para chamadas externas (ex: consulta de saldo, antifraude)
-  - [ ] Definir políticas: `failureRateThreshold=50%`, `waitDurationInOpenState=30s`
+- [x] **Resilience4j Integration**:
+  - [x] Adicionar dependência `resilience4j-spring-boot4`
+  - [x] Configurar CircuitBreaker para chamadas externas (ex: consulta de saldo, antifraude)
+  - [x] Definir políticas: `failureRateThreshold=50%`, `waitDurationInOpenState=30s`
 - [x] **Retry com Backoff**:
   - [x] Configurar via `@Retryable` ou programaticamente com `RetryTemplate`
   - [x] Diferenciar retry para erros transitórios (rede) vs. erros de negócio (validação)

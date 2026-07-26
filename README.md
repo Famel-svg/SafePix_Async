@@ -168,6 +168,10 @@ Metricas de negocio:
 
 Logs usam formato JSON com `timestamp`, `level`, `loggerName`, `message`, `formattedMessage` e MDC contendo `correlationId` e `pixId`. O header HTTP `X-Correlation-Id` e reaproveitado quando enviado; se ausente, a aplicacao gera um UUID e devolve no response header.
 
+## Resiliencia
+
+O consumer chama `PixAntifraudClient` antes de concluir o processamento. A chamada usa Resilience4j para Spring Boot 4 com circuit breaker `pixAntifraud`, `failure-rate-threshold=50` e `wait-duration-in-open-state=30s`. Reprovacoes de negocio viram `PixBusinessValidationException`, nao passam pelo retry transitorio e seguem para DLQ.
+
 ## Testes
 
 ```powershell
