@@ -45,8 +45,30 @@ class PixRequestValidationTest {
     }
 
     @Test
+    void deveRejeitarChavePixNula() {
+        PixRequest pixRequest = new PixRequest(UUID.randomUUID(), null, BigDecimal.TEN, Instant.now(), null);
+
+        assertThat(validator.validate(pixRequest))
+                .anySatisfy(violation -> assertThat(violation.getPropertyPath().toString()).isEqualTo("chavePix"));
+    }
+
+    @Test
     void deveRejeitarValorNaoPositivo() {
         PixRequest pixRequest = new PixRequest(UUID.randomUUID(), "cliente@email.com", BigDecimal.ZERO, Instant.now(), null);
+
+        assertThat(validator.validate(pixRequest))
+                .anySatisfy(violation -> assertThat(violation.getPropertyPath().toString()).isEqualTo("valor"));
+    }
+
+    @Test
+    void deveRejeitarValorNegativo() {
+        PixRequest pixRequest = new PixRequest(
+                UUID.randomUUID(),
+                "cliente@email.com",
+                new BigDecimal("-1.00"),
+                Instant.now(),
+                null
+        );
 
         assertThat(validator.validate(pixRequest))
                 .anySatisfy(violation -> assertThat(violation.getPropertyPath().toString()).isEqualTo("valor"));

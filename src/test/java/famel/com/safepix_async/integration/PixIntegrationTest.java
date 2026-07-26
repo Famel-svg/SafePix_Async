@@ -5,6 +5,8 @@ import famel.com.safepix_async.consumer.PixConsumer;
 import famel.com.safepix_async.domain.dto.PixEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,13 +24,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -97,11 +101,12 @@ class PixIntegrationTest {
         assertThat(response.statusCode()).isEqualTo(202);
         assertThat(response.headers().firstValue("Location")).contains("/api/v1/pix/%s/status".formatted(pixId));
         assertThat(response.headers().firstValue("X-Correlation-Id")).contains("corr-test");
-        verify(pixConsumer, timeout(5_000)).processarPix(argThat(pixEvent ->
-                pixId.equals(pixEvent.id())
-                        && "corr-test".equals(pixEvent.correlationId())
-                        && "default".equals(pixEvent.tenantId())
-                        && RabbitMqConfig.PAYLOAD_VERSION.equals(pixEvent.payloadVersion())));
+        await().atMost(5, SECONDS).untilAsserted(() ->
+                verify(pixConsumer).processarPix(argThat(pixEvent ->
+                        pixId.equals(pixEvent.id())
+                                && "corr-test".equals(pixEvent.correlationId())
+                                && "default".equals(pixEvent.tenantId())
+                                && RabbitMqConfig.PAYLOAD_VERSION.equals(pixEvent.payloadVersion()))));
     }
 
     @Test
@@ -149,15 +154,39 @@ class PixIntegrationTest {
         assertThat(receberPixDaFilaPrincipal()).isNull();
     }
 
+    @Test
+    void deveEnviarJsonInvalidoParaDlq() {
+        MessageProperties properties = new MessageProperties();
+        properties.setContentType(MessageProperties.CONTENT_TYPE_JSON);
+        Message message = new Message("{ json-invalido".getBytes(), properties);
+
+        rabbitTemplate.send(RabbitMqConfig.PIX_QUEUE, message);
+
+        Message mensagemNaDlq = receberMensagemDaDlq();
+
+        assertThat(new String(mensagemNaDlq.getBody())).isEqualTo("{ json-invalido");
+        assertThat(mensagemNaDlq.getMessageProperties().getHeaders())
+                .containsKey("x-exception-message");
+    }
+
     private PixEvent receberPixDaDlq() {
-        long deadline = System.currentTimeMillis() + 10_000;
-        while (System.currentTimeMillis() < deadline) {
-            Object message = rabbitTemplate.receiveAndConvert(RabbitMqConfig.PIX_DLQ, 1_000);
-            if (message instanceof PixEvent pixEvent) {
-                return pixEvent;
-            }
-        }
-        return null;
+        AtomicReference<PixEvent> pixEvent = new AtomicReference<>();
+        await().atMost(10, SECONDS).untilAsserted(() -> {
+            Object message = rabbitTemplate.receiveAndConvert(RabbitMqConfig.PIX_DLQ);
+            assertThat(message).isInstanceOf(PixEvent.class);
+            pixEvent.set((PixEvent) message);
+        });
+        return pixEvent.get();
+    }
+
+    private Message receberMensagemDaDlq() {
+        AtomicReference<Message> dlqMessage = new AtomicReference<>();
+        await().atMost(10, SECONDS).untilAsserted(() -> {
+            Message message = rabbitTemplate.receive(RabbitMqConfig.PIX_DLQ);
+            assertThat(message).isNotNull();
+            dlqMessage.set(message);
+        });
+        return dlqMessage.get();
     }
 
     private PixEvent receberPixDaFilaPrincipal() {

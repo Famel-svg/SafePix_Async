@@ -52,17 +52,17 @@
 
 ### ✅ Testes Automatizados - O Diferencial
 - [x] **Testes Unitários** (JUnit 5 + Mockito):
-  - [ ] Cobertura mínima de 80% nas camadas de serviço e domínio
-  - [ ] Testar cenários: valor negativo, chave nula, idempotência, falha de conversão
+  - [x] Cobertura mínima de 80% nas camadas de serviço e domínio
+  - [x] Testar cenários: valor negativo, chave nula, idempotência, falha de conversão
 - [x] **Testes de Integração com Testcontainers**:
   - [x] Configurar `@Testcontainers` com container RabbitMQ isolado por teste
   - [x] Validar fluxo completo: POST → RabbitMQ → Consumer → DLQ (se aplicável)
-  - [ ] Usar `Awaitility` para aguardar condições assíncronas sem `Thread.sleep`
+  - [x] Usar `Awaitility` para aguardar condições assíncronas sem `Thread.sleep`
 - [ ] **Testes de Contrato (Opcional Avançado)**:
   - [ ] Usar Spring Cloud Contract para validar schema das mensagens entre producer/consumer
 - [ ] **Relatórios de Qualidade**:
   - [x] Configurar JaCoCo para gerar relatório HTML de cobertura
-  - [ ] Integrar com GitHub Actions para publicar cobertura como artefato
+  - [x] Integrar com GitHub Actions para publicar cobertura como artefato
 
 ### ✅ Gestão de Concorrência e Threads
 - [ ] **Executor Customizado**:
