@@ -13,7 +13,7 @@ Este projeto foi criado para demonstrar, em um cenario simples e proximo do merc
 
 O fluxo de Pix foi escolhido porque combina requisitos comuns em sistemas reais: resposta rapida para o cliente, processamento em segundo plano, rastreabilidade por `correlationId`, idempotencia para evitar duplicidade, tratamento de erros com DLQ e metricas para acompanhar a saude da operacao.
 
-Tambem serve como projeto de portfolio para mostrar dominio de Spring Boot, RabbitMQ, Docker, testes automatizados, CI, logs estruturados, Prometheus, Grafana, Jaeger, OpenTelemetry e Resilience4j em uma aplicacao coesa.
+Tambem funciona como um teste pratico para desenvolver minhas capacidades de raciocinio e programacao, conectando Spring Boot, RabbitMQ, Docker, testes automatizados, CI, logs estruturados, Prometheus, Grafana, Jaeger, OpenTelemetry e Resilience4j em uma aplicacao coesa.
 
 ## Arquitetura
 
