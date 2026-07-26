@@ -29,7 +29,7 @@
   - [x] Inclusão de `correlationId` no header de resposta para rastreabilidade
 - [ ] **PixService**:
   - [x] Injeção de `RabbitTemplate` via construtor (imutabilidade)
-  - [ ] Uso de `convertAndSend()` com `MessagePostProcessor` para injetar headers de correlação
+  - [x] Uso de `convertAndSend()` com `MessagePostProcessor` para injetar headers de correlação
   - [ ] Logging estruturado com MDC: `log.info("PIX enviado", kv("pixId", id), kv("correlationId", corrId))`
 
 ### ✅ Consumidor (Consumer) - Worker Assíncrono
@@ -44,10 +44,10 @@
 
 ### ✅ Estratégia de Filas e DLQ
 - [x] **Fila Principal** `pix.recebido.v1`:
-  - [ ] Arguments: `x-dead-letter-exchange: ""`, `x-dead-letter-routing-key: pix.recebido.v1.dlq`
-  - [ ] `x-message-ttl`: 3600000 (1 hora) para evitar acúmulo infinito
+  - [x] Arguments: `x-dead-letter-exchange: ""`, `x-dead-letter-routing-key: pix.recebido.v1.dlq`
+  - [x] `x-message-ttl`: 3600000 (1 hora) para evitar acúmulo infinito
 - [x] **DLQ** `pix.recebido.v1.dlq`:
-  - [ ] Configurar como fila de quarentena com `x-dead-letter-exchange` apontando para exchange de reprocessamento (opcional)
+  - [x] Configurar como fila de quarentena com `x-dead-letter-exchange` apontando para exchange de reprocessamento (opcional)
   - [ ] Criar endpoint administrativo para listar/reprocessar mensagens da DLQ (feature avançada)
 
 ### ✅ Testes Automatizados - O Diferencial

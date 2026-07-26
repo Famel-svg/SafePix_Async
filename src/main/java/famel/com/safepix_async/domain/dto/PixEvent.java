@@ -13,6 +13,7 @@ public record PixEvent(
         Map<String, Object> metadata,
         String correlationId,
         String tenantId,
-        int retryCount
+        int retryCount,
+        String payloadVersion
 ) {
 }

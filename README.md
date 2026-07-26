@@ -97,6 +97,7 @@ X-Correlation-Id: corr-demo-001
 Efeito esperado:
 
 - Mensagem publicada na fila `pix.recebido.v1`
+- Headers RabbitMQ: `x-correlation-id`, `x-tenant-id`, `x-retry-count`, `x-payload-version`
 - Consumer processa mensagem em segundo plano
 - Log registra recebimento, envio e processamento
 
@@ -130,6 +131,8 @@ Mensagens invalidas que chegam diretamente ao RabbitMQ e falham no consumer sao 
 pix.recebido.v1.dlq
 ```
 
+Fila principal usa TTL padrao de 1 hora (`3600000` ms) e envia falhas para a DLQ via default exchange. A DLQ atua como quarentena e aponta para a exchange `pix.recebido.v1.reprocess`, usada para reprocessamento controlado.
+
 Esse comportamento e validado pelos testes de integracao com Testcontainers.
 
 ## Testes
@@ -156,3 +159,4 @@ Os testes de integracao sobem RabbitMQ real via Testcontainers. Docker Desktop p
 | `SPRING_RABBITMQ_PORT` | `5672` | Porta RabbitMQ |
 | `SPRING_RABBITMQ_USERNAME` | `safepix` | Usuario RabbitMQ |
 | `SPRING_RABBITMQ_PASSWORD` | `safepix` | Senha RabbitMQ |
+| `SAFEPIX_RABBITMQ_MESSAGE_TTL_MS` | `3600000` | TTL da fila principal em milissegundos |

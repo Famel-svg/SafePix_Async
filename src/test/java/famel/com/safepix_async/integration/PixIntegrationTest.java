@@ -95,7 +95,8 @@ class PixIntegrationTest {
         verify(pixConsumer, timeout(5_000)).processarPix(argThat(pixEvent ->
                 pixId.equals(pixEvent.id())
                         && "corr-test".equals(pixEvent.correlationId())
-                        && "default".equals(pixEvent.tenantId())));
+                        && "default".equals(pixEvent.tenantId())
+                        && RabbitMqConfig.PAYLOAD_VERSION.equals(pixEvent.payloadVersion())));
     }
 
     @Test
@@ -108,7 +109,8 @@ class PixIntegrationTest {
                 null,
                 "corr-dlq",
                 "default",
-                0
+                0,
+                RabbitMqConfig.PAYLOAD_VERSION
         );
 
         rabbitTemplate.convertAndSend(RabbitMqConfig.PIX_QUEUE, pixInvalido);

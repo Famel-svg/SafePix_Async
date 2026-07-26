@@ -1,5 +1,6 @@
 package famel.com.safepix_async.domain.dto;
 
+import famel.com.safepix_async.config.RabbitMqConfig;
 import famel.com.safepix_async.domain.validation.ValidPixValue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,6 +28,7 @@ public record PixRequest(
 ) {
 
     public PixEvent toEvent(String correlationId, String tenantId) {
-        return new PixEvent(id, chavePix, valor, timestamp, metadata, correlationId, tenantId, 0);
+        return new PixEvent(id, chavePix, valor, timestamp, metadata, correlationId, tenantId, 0,
+                RabbitMqConfig.PAYLOAD_VERSION);
     }
 }
