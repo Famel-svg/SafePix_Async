@@ -47,11 +47,11 @@ Este guia estrutura o desenvolvimento do projeto em **4 fases progressivas**, ad
   - [x] Logging level configurável por pacote
 
 ### ✅ Modelo de Dados (Domínio)
-- [ ] **PixRequest.java** (Record): Campos `id` (UUID), `chavePix`, `valor` (BigDecimal), `timestamp`, `metadata` (Map opcional)
-- [ ] **PixEvent.java** (Record para mensageria): Inclui `correlationId`, `tenantId`, `retryCount`
+- [x] **PixRequest.java** (Record): Campos `id` (UUID), `chavePix`, `valor` (BigDecimal), `timestamp`, `metadata` (Map opcional)
+- [x] **PixEvent.java** (Record para mensageria): Inclui `correlationId`, `tenantId`, `retryCount`
 - [ ] **MessageConverter Bean**: `Jackson2JsonMessageConverter` com customização para:
   - [ ] Serialização de `BigDecimal` com escala fixa
   - [ ] Inclusão de metadados de versão no payload JSON
-- [ ] **Validadores Customizados**: Annotation `@ValidPixValue` para regras de domínio
+- [x] **Validadores Customizados**: Annotation `@ValidPixValue` para regras de domínio
 
 ### ✅ Arquitetura de Pacotes (Modular por Domínio)

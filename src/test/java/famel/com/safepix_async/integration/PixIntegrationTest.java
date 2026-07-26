@@ -2,7 +2,7 @@ package famel.com.safepix_async.integration;
 
 import famel.com.safepix_async.config.RabbitMqConfig;
 import famel.com.safepix_async.consumer.PixConsumer;
-import famel.com.safepix_async.domain.dto.PixDTO;
+import famel.com.safepix_async.domain.dto.PixEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -72,13 +72,17 @@ class PixIntegrationTest {
                   "id": "%s",
                   "chavePix": "cliente@email.com",
                   "valor": 150.75,
-                  "timestamp": "%s"
+                  "timestamp": "%s",
+                  "metadata": {
+                    "origem": "teste"
+                  }
                 }
                 """.formatted(pixId, Instant.now());
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:%d/pix".formatted(port)))
+                .uri(URI.create("http://localhost:%d/api/v1/pix".formatted(port)))
                 .header("Content-Type", "application/json")
+                .header("X-Correlation-Id", "corr-test")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
 
@@ -86,27 +90,41 @@ class PixIntegrationTest {
                 .send(request, HttpResponse.BodyHandlers.ofString());
 
         assertThat(response.statusCode()).isEqualTo(202);
-        verify(pixConsumer, timeout(5_000)).processarPix(argThat(pixDTO -> pixId.equals(pixDTO.id())));
+        assertThat(response.headers().firstValue("Location")).contains("/api/v1/pix/%s/status".formatted(pixId));
+        assertThat(response.headers().firstValue("X-Correlation-Id")).contains("corr-test");
+        verify(pixConsumer, timeout(5_000)).processarPix(argThat(pixEvent ->
+                pixId.equals(pixEvent.id())
+                        && "corr-test".equals(pixEvent.correlationId())
+                        && "default".equals(pixEvent.tenantId())));
     }
 
     @Test
     void deveEnviarMensagemInvalidaParaDlq() {
-        PixDTO pixInvalido = new PixDTO(UUID.randomUUID(), "cliente@email.com", BigDecimal.ZERO, Instant.now());
+        PixEvent pixInvalido = new PixEvent(
+                UUID.randomUUID(),
+                "cliente@email.com",
+                BigDecimal.ZERO,
+                Instant.now(),
+                null,
+                "corr-dlq",
+                "default",
+                0
+        );
 
         rabbitTemplate.convertAndSend(RabbitMqConfig.PIX_QUEUE, pixInvalido);
 
-        PixDTO pixNaDlq = receberPixDaDlq();
+        PixEvent pixNaDlq = receberPixDaDlq();
 
         assertThat(pixNaDlq).isNotNull();
         assertThat(pixNaDlq.id()).isEqualTo(pixInvalido.id());
     }
 
-    private PixDTO receberPixDaDlq() {
+    private PixEvent receberPixDaDlq() {
         long deadline = System.currentTimeMillis() + 10_000;
         while (System.currentTimeMillis() < deadline) {
             Object message = rabbitTemplate.receiveAndConvert(RabbitMqConfig.PIX_DLQ, 1_000);
-            if (message instanceof PixDTO pixDTO) {
-                return pixDTO;
+            if (message instanceof PixEvent pixEvent) {
+                return pixEvent;
             }
         }
         return null;

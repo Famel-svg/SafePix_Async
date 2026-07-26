@@ -8,11 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PixDTOValidationTest {
+class PixRequestValidationTest {
 
     private static Validator validator;
 
@@ -24,24 +25,30 @@ class PixDTOValidationTest {
 
     @Test
     void deveAceitarPixValido() {
-        PixDTO pixDTO = new PixDTO(UUID.randomUUID(), "cliente@email.com", BigDecimal.TEN, Instant.now());
+        PixRequest pixRequest = new PixRequest(
+                UUID.randomUUID(),
+                "cliente@email.com",
+                BigDecimal.TEN,
+                Instant.now(),
+                Map.of("origem", "api")
+        );
 
-        assertThat(validator.validate(pixDTO)).isEmpty();
+        assertThat(validator.validate(pixRequest)).isEmpty();
     }
 
     @Test
     void deveRejeitarChavePixEmBranco() {
-        PixDTO pixDTO = new PixDTO(UUID.randomUUID(), " ", BigDecimal.TEN, Instant.now());
+        PixRequest pixRequest = new PixRequest(UUID.randomUUID(), " ", BigDecimal.TEN, Instant.now(), null);
 
-        assertThat(validator.validate(pixDTO))
+        assertThat(validator.validate(pixRequest))
                 .anySatisfy(violation -> assertThat(violation.getPropertyPath().toString()).isEqualTo("chavePix"));
     }
 
     @Test
     void deveRejeitarValorNaoPositivo() {
-        PixDTO pixDTO = new PixDTO(UUID.randomUUID(), "cliente@email.com", BigDecimal.ZERO, Instant.now());
+        PixRequest pixRequest = new PixRequest(UUID.randomUUID(), "cliente@email.com", BigDecimal.ZERO, Instant.now(), null);
 
-        assertThat(validator.validate(pixDTO))
+        assertThat(validator.validate(pixRequest))
                 .anySatisfy(violation -> assertThat(violation.getPropertyPath().toString()).isEqualTo("valor"));
     }
 }

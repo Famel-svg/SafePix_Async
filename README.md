@@ -11,7 +11,7 @@ API Java com Spring Boot e RabbitMQ que recebe solicitacoes Pix por HTTP, public
 
 ```mermaid
 flowchart LR
-    Client["Cliente HTTP"] --> Controller["PixController<br/>POST /pix"]
+    Client["Cliente HTTP"] --> Controller["PixController<br/>POST /api/v1/pix"]
     Controller --> Service["PixService"]
     Service --> Queue["RabbitMQ<br/>pix.recebido.v1"]
     Queue --> Consumer["PixConsumer"]
@@ -72,13 +72,17 @@ Depois rode aplicacao:
 ## Requisicao Pix valida
 
 ```bash
-curl -i -X POST http://localhost:8080/pix \
+curl -i -X POST http://localhost:8080/api/v1/pix \
   -H "Content-Type: application/json" \
+  -H "X-Correlation-Id: corr-demo-001" \
   -d '{
     "id": "11111111-1111-1111-1111-111111111111",
     "chavePix": "cliente@email.com",
     "valor": 150.75,
-    "timestamp": "2026-05-24T21:00:00Z"
+    "timestamp": "2026-05-24T21:00:00Z",
+    "metadata": {
+      "origem": "mobile"
+    }
   }'
 ```
 
@@ -86,6 +90,8 @@ Resposta esperada:
 
 ```http
 HTTP/1.1 202 Accepted
+Location: /api/v1/pix/11111111-1111-1111-1111-111111111111/status
+X-Correlation-Id: corr-demo-001
 ```
 
 Efeito esperado:
@@ -97,7 +103,7 @@ Efeito esperado:
 ## Requisicao Pix invalida
 
 ```bash
-curl -i -X POST http://localhost:8080/pix \
+curl -i -X POST http://localhost:8080/api/v1/pix \
   -H "Content-Type: application/json" \
   -d '{
     "id": "22222222-2222-2222-2222-222222222222",
@@ -138,7 +144,7 @@ Os testes de integracao sobem RabbitMQ real via Testcontainers. Docker Desktop p
 
 | Metodo | Rota | Descricao |
 | --- | --- | --- |
-| POST | `/pix` | Recebe solicitacao Pix e publica mensagem |
+| POST | `/api/v1/pix` | Recebe solicitacao Pix e publica mensagem |
 | GET | `/actuator/health` | Verifica saude da aplicacao |
 | GET | `/swagger-ui.html` | Abre documentacao OpenAPI |
 
@@ -148,6 +154,5 @@ Os testes de integracao sobem RabbitMQ real via Testcontainers. Docker Desktop p
 | --- | --- | --- |
 | `SPRING_RABBITMQ_HOST` | `localhost` | Host RabbitMQ |
 | `SPRING_RABBITMQ_PORT` | `5672` | Porta RabbitMQ |
-| `SPRING_RABBITMQ_USERNAME` | `guest` | Usuario RabbitMQ |
-| `SPRING_RABBITMQ_PASSWORD` | `guest` | Senha RabbitMQ |
-
+| `SPRING_RABBITMQ_USERNAME` | `safepix` | Usuario RabbitMQ |
+| `SPRING_RABBITMQ_PASSWORD` | `safepix` | Senha RabbitMQ |

@@ -1,7 +1,7 @@
 package famel.com.safepix_async.consumer;
 
 import famel.com.safepix_async.config.RabbitMqConfig;
-import famel.com.safepix_async.domain.dto.PixDTO;
+import famel.com.safepix_async.domain.dto.PixEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -16,12 +16,12 @@ public class PixConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PixConsumer.class);
 
     @RabbitListener(queues = RabbitMqConfig.PIX_QUEUE)
-    public void processarPix(PixDTO pixDTO) {
-        LOGGER.info("Pix recebido para processamento: id={}, chavePix={}, valor={}",
-                pixDTO.id(), pixDTO.chavePix(), pixDTO.valor());
+    public void processarPix(PixEvent pixEvent) {
+        LOGGER.info("Pix recebido para processamento: id={}, chavePix={}, valor={}, correlationId={}",
+                pixEvent.id(), pixEvent.chavePix(), pixEvent.valor(), pixEvent.correlationId());
 
-        if (pixDTO.valor() == null || pixDTO.valor().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new AmqpRejectAndDontRequeueException("Pix com valor invalido: " + pixDTO.valor());
+        if (pixEvent.valor() == null || pixEvent.valor().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new AmqpRejectAndDontRequeueException("Pix com valor invalido: " + pixEvent.valor());
         }
 
         try {
@@ -31,6 +31,7 @@ public class PixConsumer {
             throw new AmqpRejectAndDontRequeueException("Processamento do Pix interrompido", exception);
         }
 
-        LOGGER.info("Pix processado com sucesso: id={}", pixDTO.id());
+        LOGGER.info("Pix processado com sucesso: id={}, correlationId={}",
+                pixEvent.id(), pixEvent.correlationId());
     }
 }

@@ -1,7 +1,7 @@
 package famel.com.safepix_async.service;
 
 import famel.com.safepix_async.config.RabbitMqConfig;
-import famel.com.safepix_async.domain.dto.PixDTO;
+import famel.com.safepix_async.domain.dto.PixEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -18,9 +18,11 @@ public class PixService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void enviarPix(PixDTO pixDTO) {
-        LOGGER.info("Publicando Pix na fila {}: id={}", RabbitMqConfig.PIX_QUEUE, pixDTO.id());
-        rabbitTemplate.convertAndSend(RabbitMqConfig.PIX_QUEUE, pixDTO);
-        LOGGER.info("Pix publicado na fila {}: id={}", RabbitMqConfig.PIX_QUEUE, pixDTO.id());
+    public void enviarPix(PixEvent pixEvent) {
+        LOGGER.info("Publicando Pix na fila {}: id={}, correlationId={}",
+                RabbitMqConfig.PIX_QUEUE, pixEvent.id(), pixEvent.correlationId());
+        rabbitTemplate.convertAndSend(RabbitMqConfig.PIX_QUEUE, pixEvent);
+        LOGGER.info("Pix publicado na fila {}: id={}, correlationId={}",
+                RabbitMqConfig.PIX_QUEUE, pixEvent.id(), pixEvent.correlationId());
     }
 }

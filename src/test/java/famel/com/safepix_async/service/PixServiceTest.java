@@ -1,7 +1,7 @@
 package famel.com.safepix_async.service;
 
 import famel.com.safepix_async.config.RabbitMqConfig;
-import famel.com.safepix_async.domain.dto.PixDTO;
+import famel.com.safepix_async.domain.dto.PixEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,10 +26,19 @@ class PixServiceTest {
 
     @Test
     void deveEnviarPixParaFilaPrincipal() {
-        PixDTO pixDTO = new PixDTO(UUID.randomUUID(), "cliente@email.com", BigDecimal.TEN, Instant.now());
+        PixEvent pixEvent = new PixEvent(
+                UUID.randomUUID(),
+                "cliente@email.com",
+                BigDecimal.TEN,
+                Instant.now(),
+                null,
+                "corr-123",
+                "default",
+                0
+        );
 
-        pixService.enviarPix(pixDTO);
+        pixService.enviarPix(pixEvent);
 
-        verify(rabbitTemplate).convertAndSend(RabbitMqConfig.PIX_QUEUE, pixDTO);
+        verify(rabbitTemplate).convertAndSend(RabbitMqConfig.PIX_QUEUE, pixEvent);
     }
 }

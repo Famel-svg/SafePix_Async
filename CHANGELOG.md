@@ -16,7 +16,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/) e versionamen
 
 ### Added
 
-- API `POST /pix` para receber solicitacoes Pix.
+- API `POST /api/v1/pix` para receber solicitacoes Pix.
 - Publicacao assincrona em RabbitMQ pela fila `pix.recebido.v1`.
 - Consumer RabbitMQ para processar mensagens Pix.
 - DLQ `pix.recebido.v1.dlq` para mensagens rejeitadas.
@@ -26,4 +26,3 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/) e versionamen
 - Testes unitarios com JUnit 5 e Mockito.
 - Testes de integracao com Testcontainers e RabbitMQ.
 - Dockerfile multi-stage e Docker Compose com RabbitMQ Management.
-
