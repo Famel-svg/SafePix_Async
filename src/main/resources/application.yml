@@ -1,11 +1,13 @@
 spring:
   application:
     name: SafePix Async
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: safepix
-    password: safepix
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:safepix}
+    password: ${SPRING_RABBITMQ_PASSWORD:safepix}
 
 management:
   endpoints:
@@ -19,3 +21,33 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:INFO}
+    famel.com.safepix_async: ${APP_LOG_LEVEL:INFO}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    famel.com.safepix_async: ${APP_LOG_LEVEL:DEBUG}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+logging:
+  level:
+    famel.com.safepix_async: ${APP_LOG_LEVEL:INFO}

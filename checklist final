@@ -11,10 +11,10 @@
 - [x] **CONTRIBUTING.md** com guidelines para PRs e padrões de código
 
 ### ✅ Versionamento e Qualidade
-- [ ] Adotar **Versionamento Semântico** (`MAJOR.MINOR.PATCH`) no `pom.xml`
-- [ ] Configurar **Maven Enforcer Plugin** para validar regras de versão e dependências
-- [ ] Integrar **Spotless** ou **Checkstyle** para formatação automática de código
-- [ ] Criar `.gitignore` robusto para Java/Maven/Docker
+- [x] Adotar **Versionamento Semântico** (`MAJOR.MINOR.PATCH`) no `pom.xml`
+- [x] Configurar **Maven Enforcer Plugin** para validar regras de versão e dependências
+- [x] Integrar **Spotless** ou **Checkstyle** para formatação automática de código
+- [x] Criar `.gitignore` robusto para Java/Maven/Docker
 
 ---
 
@@ -61,7 +61,7 @@
 - [ ] **Testes de Contrato (Opcional Avançado)**:
   - [ ] Usar Spring Cloud Contract para validar schema das mensagens entre producer/consumer
 - [ ] **Relatórios de Qualidade**:
-  - [ ] Configurar JaCoCo para gerar relatório HTML de cobertura
+  - [x] Configurar JaCoCo para gerar relatório HTML de cobertura
   - [ ] Integrar com GitHub Actions para publicar cobertura como artefato
 
 ### ✅ Gestão de Concorrência e Threads
