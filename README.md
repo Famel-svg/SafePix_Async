@@ -7,6 +7,14 @@
 
 API Java com Spring Boot e RabbitMQ que recebe solicitacoes Pix por HTTP, publica mensagens em uma fila e processa tudo de forma assincrona.
 
+## Por que este projeto existe
+
+Este projeto foi criado para demonstrar, em um cenario simples e proximo do mercado financeiro, como construir uma API Java preparada para processamento assincrono, falhas controladas e observabilidade desde o inicio.
+
+O fluxo de Pix foi escolhido porque combina requisitos comuns em sistemas reais: resposta rapida para o cliente, processamento em segundo plano, rastreabilidade por `correlationId`, idempotencia para evitar duplicidade, tratamento de erros com DLQ e metricas para acompanhar a saude da operacao.
+
+Tambem serve como projeto de portfolio para mostrar dominio de Spring Boot, RabbitMQ, Docker, testes automatizados, CI, logs estruturados, Prometheus, Grafana, Jaeger, OpenTelemetry e Resilience4j em uma aplicacao coesa.
+
 ## Arquitetura
 
 ```mermaid
