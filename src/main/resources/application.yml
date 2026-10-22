@@ -3,6 +3,10 @@ spring:
     name: SafePix Async
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  security:
+    user:
+      name: ${ADMIN_USER:admin}
+      password: ${ADMIN_PASSWORD:}
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     port: ${SPRING_RABBITMQ_PORT:5672}
