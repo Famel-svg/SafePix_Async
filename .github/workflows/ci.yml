@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -24,6 +31,9 @@ jobs:
       - name: Make Maven wrapper executable
         run: chmod +x mvnw
 
+      # verify executa testes unitarios e de integracao (Testcontainers usa o Docker do runner)
+      # e o goal jacoco:check (execution check-service-domain-coverage), que falha o build
+      # se a cobertura de linhas dos pacotes service e domain ficar abaixo de 80%.
       - name: Verify
         run: ./mvnw -B verify
 
