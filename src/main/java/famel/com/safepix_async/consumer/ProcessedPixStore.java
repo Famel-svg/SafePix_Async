@@ -1,35 +1,24 @@
 package famel.com.safepix_async.consumer;
 
-import org.springframework.stereotype.Component;
-
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
-@Component
-public class ProcessedPixStore {
+/**
+ * Controle de idempotencia do processamento de Pix.
+ */
+public interface ProcessedPixStore {
 
-    private final Set<UUID> processing = ConcurrentHashMap.newKeySet();
-    private final Set<UUID> processed = ConcurrentHashMap.newKeySet();
+    /**
+     * Tenta reservar o Pix para processamento.
+     *
+     * @return {@code true} se o Pix ainda nao foi processado nem esta em processamento
+     */
+    boolean tryStart(UUID pixId);
 
-    public boolean tryStart(UUID pixId) {
-        return !processed.contains(pixId) && processing.add(pixId);
-    }
+    void markProcessed(UUID pixId);
 
-    public void markProcessed(UUID pixId) {
-        processing.remove(pixId);
-        processed.add(pixId);
-    }
+    void release(UUID pixId);
 
-    public void release(UUID pixId) {
-        processing.remove(pixId);
-    }
+    boolean isProcessed(UUID pixId);
 
-    public boolean isProcessed(UUID pixId) {
-        return processed.contains(pixId);
-    }
-
-    public int processedCount() {
-        return processed.size();
-    }
+    long processedCount();
 }

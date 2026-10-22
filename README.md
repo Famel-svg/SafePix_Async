@@ -34,6 +34,7 @@ flowchart LR
 - Spring Boot 4
 - Spring AMQP
 - RabbitMQ
+- PostgreSQL + Flyway
 - Docker Compose
 - SpringDoc OpenAPI
 - Spring Actuator
@@ -144,7 +145,7 @@ pix.recebido.v1.dlq
 
 Fila principal usa TTL padrao de 1 hora (`3600000` ms) e envia falhas para a DLQ via default exchange. A DLQ atua como quarentena e aponta para a exchange `pix.recebido.v1.reprocess`, usada para reprocessamento controlado.
 
-O consumer usa concorrencia configuravel, delay de processamento configuravel, retry com backoff e recoverer para DLQ. Pix duplicado pelo mesmo `id` e ignorado por uma store em memoria.
+O consumer usa concorrencia configuravel, delay de processamento configuravel, retry com backoff e recoverer para DLQ. Pix duplicado pelo mesmo `id` e ignorado pela store de idempotencia persistida no PostgreSQL (tabela `pix_processing`, criada pela migration Flyway `V1__create_pix_processing.sql`). Reservas em `PROCESSING` mais antigas que `SAFEPIX_IDEMPOTENCY_PROCESSING_TIMEOUT` sao consideradas abandonadas e podem ser assumidas novamente.
 Erros transitorios usam retry com backoff antes de ir para DLQ; erros de negocio, como valor invalido, nao sao retentados.
 Threads do consumer usam executor dedicado com MDC propagado para preservar `correlationId` no processamento assincrono.
 
@@ -193,7 +194,7 @@ O consumer chama `PixAntifraudClient` antes de concluir o processamento. A chama
 .\mvnw.cmd test
 ```
 
-Os testes de integracao sobem RabbitMQ real via Testcontainers. Docker Desktop precisa estar rodando.
+Os testes de integracao sobem RabbitMQ e PostgreSQL reais via Testcontainers. Docker Desktop precisa estar rodando.
 Use `.\mvnw.cmd verify` para gerar JaCoCo em `target/site/jacoco` e aplicar gate minimo de 80% nas camadas `service` e `domain`.
 
 O CI em GitHub Actions executa `mvn verify` e publica o relatorio HTML do JaCoCo como artefato `jacoco-html`.
@@ -219,6 +220,10 @@ O schema JSON da mensagem `PixEvent` e validado por teste de contrato com Spring
 | `SPRING_RABBITMQ_PORT` | `5672` | Porta RabbitMQ |
 | `SPRING_RABBITMQ_USERNAME` | `safepix` | Usuario RabbitMQ |
 | `SPRING_RABBITMQ_PASSWORD` | `safepix` | Senha RabbitMQ |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/safepix` | URL JDBC do PostgreSQL |
+| `SPRING_DATASOURCE_USERNAME` | `safepix` | Usuario PostgreSQL |
+| `SPRING_DATASOURCE_PASSWORD` | `safepix` | Senha PostgreSQL |
+| `SAFEPIX_IDEMPOTENCY_PROCESSING_TIMEOUT` | `PT5M` | Tempo apos o qual uma reserva `PROCESSING` e considerada abandonada |
 | `SAFEPIX_CONSUMER_CONCURRENCY` | `1` | Concorrencia do listener RabbitMQ |
 | `SAFEPIX_CONSUMER_PROCESSING_DELAY_MS` | `2000` | Delay simulado do processamento do consumer |
 | `SAFEPIX_CONSUMER_EXECUTOR_CORE_POOL_SIZE` | `2` | Tamanho base do pool dedicado ao consumer |

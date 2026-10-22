@@ -24,7 +24,7 @@ class PixConsumerTest {
 
     @Test
     void deveIgnorarPixDuplicadoSemProcessarDuasVezes() {
-        ProcessedPixStore store = new ProcessedPixStore();
+        ProcessedPixStore store = new InMemoryProcessedPixStore();
         PixAntifraudClient antifraudClient = approvingAntifraud();
         PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), antifraudClient, new PixTracing());
         PixEvent event = pixEvent(BigDecimal.TEN);
@@ -39,7 +39,7 @@ class PixConsumerTest {
 
     @Test
     void deveLiberarIdempotenciaQuandoValorForInvalido() {
-        ProcessedPixStore store = new ProcessedPixStore();
+        ProcessedPixStore store = new InMemoryProcessedPixStore();
         PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), approvingAntifraud(), new PixTracing());
         PixEvent event = pixEvent(BigDecimal.ZERO);
 
@@ -53,7 +53,7 @@ class PixConsumerTest {
 
     @Test
     void deveNegarPixQuandoAntifraudeReprovar() {
-        ProcessedPixStore store = new ProcessedPixStore();
+        ProcessedPixStore store = new InMemoryProcessedPixStore();
         PixAntifraudClient antifraudClient = mock(PixAntifraudClient.class);
         PixConsumer consumer = new PixConsumer(store, 0, pixMetrics(), antifraudClient, new PixTracing());
         PixEvent event = pixEvent(BigDecimal.TEN);

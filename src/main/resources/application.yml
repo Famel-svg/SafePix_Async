@@ -12,6 +12,13 @@ spring:
     port: ${SPRING_RABBITMQ_PORT:5672}
     username: ${SPRING_RABBITMQ_USERNAME:safepix}
     password: ${SPRING_RABBITMQ_PASSWORD:safepix}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/safepix}
+    username: ${SPRING_DATASOURCE_USERNAME:safepix}
+    password: ${SPRING_DATASOURCE_PASSWORD:safepix}
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    locations: classpath:db/migration
 
 management:
   endpoints:
@@ -34,6 +41,8 @@ resilience4j:
         wait-duration-in-open-state: 30s
 
 safepix:
+  idempotency:
+    processing-timeout: ${SAFEPIX_IDEMPOTENCY_PROCESSING_TIMEOUT:PT5M}
   consumer:
     concurrency: ${SAFEPIX_CONSUMER_CONCURRENCY:1}
     processing-delay-ms: ${SAFEPIX_CONSUMER_PROCESSING_DELAY_MS:2000}
