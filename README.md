@@ -42,7 +42,11 @@ flowchart LR
 
 ## Como rodar tudo com Docker Compose
 
+As credenciais nao ficam no `docker-compose.yml`: elas vem de variaveis de ambiente ou de um arquivo `.env` (ignorado pelo git). Copie o exemplo e defina as senhas:
+
 ```bash
+cp .env.example .env
+# edite .env e troque os valores change-me
 docker compose up --build
 ```
 
@@ -54,11 +58,9 @@ Servicos locais:
 - Metrics: http://localhost:8080/actuator/metrics
 - Prometheus: http://localhost:8080/actuator/prometheus
 - RabbitMQ Management: http://localhost:15672
+- PostgreSQL: localhost:5432 (banco `safepix`)
 
-Credenciais RabbitMQ:
-
-- Usuario: `safepix`
-- Senha: `safepix`
+Usuarios e senhas de RabbitMQ, PostgreSQL, Grafana e do endpoint admin sao os definidos no `.env`.
 
 Para parar:
 
@@ -68,11 +70,13 @@ docker compose down
 
 ## Como rodar localmente
 
-Suba apenas RabbitMQ:
+Suba apenas PostgreSQL e RabbitMQ:
 
 ```bash
-docker compose up -d rabbitmq
+docker compose up -d postgres rabbitmq
 ```
+
+Exporte as mesmas credenciais para a aplicacao (`SPRING_DATASOURCE_PASSWORD`, `SPRING_RABBITMQ_PASSWORD`, `ADMIN_PASSWORD`). As migrations Flyway rodam automaticamente na subida.
 
 Depois rode aplicacao:
 
@@ -168,7 +172,7 @@ Endpoints Actuator expostos:
 - `GET /actuator/health`: saude da aplicacao e health customizado da fila `pix.recebido.v1`
 - `GET /actuator/metrics`: catalogo de metricas
 - `GET /actuator/prometheus`: scrape Prometheus
-- Grafana: `http://localhost:3000` (`admin` / `admin`)
+- Grafana: `http://localhost:3000` (usuario/senha de `GRAFANA_ADMIN_USER` / `GRAFANA_ADMIN_PASSWORD`)
 - Prometheus: `http://localhost:9090`
 - Jaeger: `http://localhost:16686`
 

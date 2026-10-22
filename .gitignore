@@ -46,6 +46,7 @@ release.properties
 ### Docker ###
 .env
 .env.*
+!.env.example
 docker-compose.override.yml
 *.tar
 

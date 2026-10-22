@@ -1,35 +1,66 @@
+# Todas as credenciais vem de variaveis de ambiente (ou de um arquivo .env na raiz).
+# Copie .env.example para .env e defina as senhas antes de subir:
+#   cp .env.example .env && docker compose up --build
 services:
   app:
     build:
       context: .
     container_name: safepix-app
     depends_on:
+      postgres:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "${APP_PORT:-8080}:8080"
     environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?defina ADMIN_PASSWORD no .env}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-safepix}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-safepix}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: safepix
-      SPRING_RABBITMQ_PASSWORD: safepix
-      OTEL_SERVICE_NAME: safepix-async
-      OTEL_TRACES_EXPORTER: otlp
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-safepix}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD no .env}
+      SAFEPIX_CONSUMER_CONCURRENCY: ${SAFEPIX_CONSUMER_CONCURRENCY:-1}
+      SAFEPIX_CONSUMER_PROCESSING_DELAY_MS: ${SAFEPIX_CONSUMER_PROCESSING_DELAY_MS:-2000}
+      SAFEPIX_IDEMPOTENCY_PROCESSING_TIMEOUT: ${SAFEPIX_IDEMPOTENCY_PROCESSING_TIMEOUT:-PT5M}
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-safepix-async}
+      OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://jaeger:4318}
       OTEL_METRICS_EXPORTER: none
       OTEL_LOGS_EXPORTER: none
     labels:
       prometheus.scrape: "true"
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: safepix-postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-safepix}
+      POSTGRES_USER: ${POSTGRES_USER:-safepix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: safepix-rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: safepix
-      RABBITMQ_DEFAULT_PASS: safepix
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-safepix}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?defina RABBITMQ_PASSWORD no .env}
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
@@ -63,8 +94,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?defina GRAFANA_ADMIN_PASSWORD no .env}
     volumes:
       - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
@@ -72,4 +103,5 @@ services:
       - prometheus
 
 volumes:
+  postgres-data:
   rabbitmq-data:
